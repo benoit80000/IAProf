@@ -1,3 +1,5 @@
+import './globals.css';
+
 export const metadata = {
   title: 'Prof IA CM1',
   description: 'Ton professeur virtuel pour réviser tes leçons !',
@@ -6,7 +8,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr">
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
