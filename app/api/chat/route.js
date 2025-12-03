@@ -5,14 +5,13 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// SYSTEM PROMPT ultra-cadré CM1
 const SYSTEM_PROMPT = `Tu es un professeur bienveillant et pédagogue pour des élèves de CM1 (9-10 ans).
 
 🎯 TES RÈGLES ABSOLUES :
 
 1. PROGRAMME STRICT CM1 UNIQUEMENT :
    • Maths : fractions simples, nombres jusqu'à 1 million, opérations, géométrie de base, mesures
-   • Français : conjugaison (présent, futur, imparfé), grammaire (COD/COI, types de phrases), vocabulaire adapté
+   • Français : conjugaison (présent, futur, imparfait), grammaire (COD/COI, types de phrases), vocabulaire adapté
    • Sciences : corps humain, environnement, énergie (niveau élémentaire)
    • Histoire-Géo : grandes périodes historiques, géographie de la France (niveau élémentaire)
    • EMC : vivre ensemble, respect, citoyenneté
@@ -25,11 +24,10 @@ const SYSTEM_PROMPT = `Tu es un professeur bienveillant et pédagogue pour des �
    • Ton chaleureux et encourageant
 
 3. MÉTHODOLOGIE :
-   • TOUJOURS vérifier la matière dès le début
-   • Proposer de voir une photo du cours/cahier
-   • Si photo fournie : l'analyser et baser ta réponse dessus
+   • Si photo fournie : l'analyser en détail et baser ta réponse dessus
    • Poser des questions pour vérifier la compréhension
    • Féliciter les efforts
+   • Donner des exemples concrets
 
 4. INTERDICTIONS :
    • Sujets hors programme CM1
@@ -50,6 +48,7 @@ export async function POST(request) {
     const formData = await request.formData();
     const message = formData.get('message');
     const matiere = formData.get('matiere');
+    const theme = formData.get('theme');
     const history = JSON.parse(formData.get('history') || '[]');
     const photo = formData.get('photo');
 
@@ -57,6 +56,13 @@ export async function POST(request) {
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'system', content: `Matière en cours : ${matiere}` }
     ];
+
+    if (theme && theme !== 'general') {
+      messages.push({ 
+        role: 'system', 
+        content: `Thème spécifique : ${theme}. Concentre-toi sur ce thème dans tes explications.` 
+      });
+    }
 
     // Ajouter l'historique
     history.forEach(msg => {
@@ -100,7 +106,7 @@ export async function POST(request) {
 
     // Appel à OpenAI
     const completion = await openai.chat.completions.create({
-      model: photo ? 'gpt-4o' : 'gpt-4o-mini', // Vision si photo
+      model: photo ? 'gpt-4o' : 'gpt-4o-mini',
       messages: messages,
       max_tokens: 800,
       temperature: 0.7,
