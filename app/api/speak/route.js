@@ -70,3 +70,11 @@ export async function POST(request) {
 7. 🔊 "Le prof parle..." - Lecture vocale de la réponse
 8. ⏸️ Fin de la lecture
 9. 🔁 Retour automatique en mode écoute (étape 2)
+
+voice: 'nova',  // Voix féminine douce (recommandée pour enfants)
+// Autres options:
+// 'alloy'   - Neutre
+// 'echo'    - Masculine
+// 'fable'   - Britannique
+// 'onyx'    - Masculine profonde
+// 'shimmer' - Féminine énergique
