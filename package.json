@@ -15,8 +15,3 @@
     "lucide-react": "^0.263.1"
   }
 }
-```
-
-### 4️⃣ **`.env.local`** (local uniquement)
-```
-OPENAI_API_KEY=sk-votre-clé-ici
