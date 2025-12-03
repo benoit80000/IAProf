@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { BookOpen, Camera, Send, Trash2, Loader } from 'lucide-react';
 
@@ -84,39 +86,27 @@ export default function ProfIA() {
         formData.append('photo', photo);
       }
 
-      // DEMO MODE - Simulation de réponse
-      // En production, décommenter l'appel API ci-dessous
-      
-      /*
       const response = await fetch('/api/chat', {
         method: 'POST',
         body: formData
       });
 
       const data = await response.json();
-      */
 
-      // SIMULATION pour démonstration
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      let demoResponse = '';
-      
-      if (photo) {
-        demoResponse = `Super ! 📸 J'ai bien vu ta photo !\n\nJe vois que tu travailles sur ce sujet. C'est une très bonne leçon !\n\nVoici ce que je peux t'expliquer :\n\n✨ L'essentiel à retenir :\n• Point important 1\n• Point important 2\n• Point important 3\n\nEst-ce qu'il y a quelque chose en particulier que tu ne comprends pas bien ? Je suis là pour t'aider ! 😊`;
-      } else if (input.toLowerCase().includes('fraction')) {
-        demoResponse = `Les fractions ! 🍰 C'est comme découper un gâteau !\n\nImagine un gâteau entier = 1\nSi tu le coupes en 4 parts égales, chaque part = 1/4\n\n🎯 Exemple :\n• 1/4 se lit "un quart"\n• 2/4 = "deux quarts" (la moitié du gâteau !)\n• 3/4 = "trois quarts"\n\nEst-ce que tu veux qu'on s'entraîne avec des exemples ? Ou tu as une question précise sur les fractions ?`;
-      } else if (input.toLowerCase().includes('conjugaison') || input.toLowerCase().includes('verbe')) {
-        demoResponse = `La conjugaison ! 📝 C'est important de bien conjuguer les verbes.\n\n🎯 Petit truc pour t'aider :\n• JE → e (je mange)\n• TU → es (tu manges)\n• IL/ELLE → e (il/elle mange)\n• NOUS → ons (nous mangeons)\n• VOUS → ez (vous mangez)\n• ILS/ELLES → ent (ils/elles mangent)\n\nC'est pour quel temps ? Présent, futur, imparfait ? Dis-moi et on va réviser ensemble ! 😊`;
+      if (data.success) {
+        const assistantMessage = {
+          role: 'assistant',
+          content: data.response
+        };
+        setMessages(prev => [...prev, assistantMessage]);
       } else {
-        demoResponse = `D'accord ! Je comprends ta question. 😊\n\n${input.includes('?') ? 'Voici la réponse' : 'Laisse-moi t\'expliquer'} :\n\nC'est un sujet important en ${MATIERES.find(m => m.id === matiere)?.nom} pour le CM1.\n\n💡 L'essentiel à retenir :\n• Premier point important\n• Deuxième point à comprendre\n• Troisième élément clé\n\nEst-ce que c'est plus clair maintenant ? N'hésite pas à me poser d'autres questions ! 🌟`;
+        const errorMessage = {
+          role: 'assistant',
+          content: data.error || 'Oups ! 😅 J\'ai eu un petit problème. Peux-tu réessayer s\'il te plaît ?'
+        };
+        setMessages(prev => [...prev, errorMessage]);
       }
 
-      const assistantMessage = {
-        role: 'assistant',
-        content: demoResponse
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
       removePhoto();
 
     } catch (error) {
