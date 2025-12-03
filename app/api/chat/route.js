@@ -19,29 +19,37 @@ const SYSTEM_PROMPT = `Tu es un professeur bienveillant et pédagogue pour des �
 2. LANGAGE ADAPTÉ :
    • Phrases courtes et simples
    • Vocabulaire d'un enfant de 9-10 ans
-   • Emojis pour rendre vivant (mais avec modération)
+   • Emojis pour rendre vivant
    • Exemples concrets du quotidien
    • Ton chaleureux et encourageant
 
-3. MÉTHODOLOGIE :
-   • Si photo fournie : l'analyser en détail et baser ta réponse dessus
+3. GAMIFICATION - TRÈS IMPORTANT :
+   • Pose régulièrement des questions simples à l'enfant pour vérifier sa compréhension
+   • Quand l'enfant répond correctement, FÉLICITE-LE avec enthousiasme : "Bravo !", "Excellent !", "Super !", "C'est ça !", "Tu as tout compris !"
+   • Utilise des emojis de célébration : 🎉 ⭐ 🌟 ✨ 👏 💪
+   • Si l'enfant se trompe, encourage-le gentiment et explique l'erreur
+   • Termine toujours par une question ou un encouragement pour continuer
+
+4. MÉTHODOLOGIE :
+   • Si photo fournie : l'analyser en détail et poser des questions dessus
    • Poser des questions pour vérifier la compréhension
-   • Féliciter les efforts
+   • Féliciter TOUS les efforts
    • Donner des exemples concrets
 
-4. INTERDICTIONS :
+5. INTERDICTIONS :
    • Sujets hors programme CM1
    • Langage technique ou complexe
-   • Sujets sensibles inappropriés pour cet âge
-   • Donner directement les réponses aux devoirs (guider seulement)
+   • Sujets sensibles inappropriés
+   • Donner directement toutes les réponses (guider, puis questionner)
 
-5. FORMAT DE RÉPONSE :
-   • Introduction bienveillante
+6. FORMAT DE RÉPONSE :
    • Explication claire avec exemples
-   • Vérification de compréhension
-   • Encouragement final
+   • Question de vérification
+   • Encouragement positif
 
-Si on te demande quelque chose hors programme ou inapproprié, explique gentiment que ce n'est pas au programme de CM1.`;
+IMPORTANT : Tu dois régulièrement poser des questions à l'enfant pour l'engager activement dans l'apprentissage !
+
+Si on te demande quelque chose hors programme, explique gentiment que ce n'est pas au programme de CM1.`;
 
 export async function POST(request) {
   try {
@@ -60,11 +68,10 @@ export async function POST(request) {
     if (theme && theme !== 'general') {
       messages.push({ 
         role: 'system', 
-        content: `Thème spécifique : ${theme}. Concentre-toi sur ce thème dans tes explications.` 
+        content: `Thème spécifique : ${theme}. Concentre-toi sur ce thème. Pose des questions sur ce thème pour vérifier que l'enfant comprend bien.` 
       });
     }
 
-    // Ajouter l'historique
     history.forEach(msg => {
       if (msg.role !== 'system') {
         messages.push({
@@ -74,7 +81,6 @@ export async function POST(request) {
       }
     });
 
-    // Gérer la photo si présente
     if (photo) {
       const bytes = await photo.arrayBuffer();
       const buffer = Buffer.from(bytes);
@@ -104,7 +110,6 @@ export async function POST(request) {
       });
     }
 
-    // Appel à OpenAI
     const completion = await openai.chat.completions.create({
       model: photo ? 'gpt-4o' : 'gpt-4o-mini',
       messages: messages,
@@ -114,9 +119,17 @@ export async function POST(request) {
 
     const response = completion.choices[0].message.content;
 
+    const encouragementWords = ['bravo', 'excellent', 'super', 'bien', 'correct', 'c\'est ça', 'parfait', 'génial'];
+    const hasEncouragement = encouragementWords.some(word => 
+      response.toLowerCase().includes(word)
+    );
+
+    const gainPoints = hasEncouragement ? 10 : 0;
+
     return NextResponse.json({ 
       success: true, 
-      response 
+      response,
+      gainPoints
     });
 
   } catch (error) {
