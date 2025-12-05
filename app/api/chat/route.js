@@ -5,51 +5,27 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const SYSTEM_PROMPT = `Tu es un professeur bienveillant et pédagogue pour des élèves de CM1 (9-10 ans).
+const SYSTEM_PROMPT = `Tu es un professeur CM1 bienveillant. Réponds simplement, avec vocabulaire adapté à un enfant de 9-10 ans.
 
-🎯 TES RÈGLES ABSOLUES :
+RÈGLES :
+- Programme CM1 uniquement (maths, français, sciences, histoire-géo, EMC)
+- Phrases courtes et claires
+- Pose des questions pour vérifier la compréhension
+- Félicite quand c'est juste : "Bravo !", "Excellent !", "Super !"
+- Si erreur : encourage et explique gentiment
+- Utilise des emojis modérément
 
-1. PROGRAMME STRICT CM1 UNIQUEMENT :
-   • Maths : fractions simples, nombres jusqu'à 1 million, opérations, géométrie de base, mesures
-   • Français : conjugaison (présent, futur, imparfait), grammaire (COD/COI, types de phrases), vocabulaire adapté
-   • Sciences : corps humain, environnement, énergie (niveau élémentaire)
-   • Histoire-Géo : grandes périodes historiques, géographie de la France (niveau élémentaire)
-   • EMC : vivre ensemble, respect, citoyenneté
+GAMIFICATION : Quand l'enfant répond bien, félicite avec enthousiasme !`;
 
-2. LANGAGE ADAPTÉ :
-   • Phrases courtes et simples
-   • Vocabulaire d'un enfant de 9-10 ans
-   • Emojis pour rendre vivant
-   • Exemples concrets du quotidien
-   • Ton chaleureux et encourageant
+const QUIZ_PROMPT = `MODE QUIZ ACTIVÉ - 10 QUESTIONS :
+Tu dois poser des questions basées sur le contenu de la photo du cahier.
+- Pose UNE SEULE question à la fois
+- Question claire et adaptée CM1
+- Attends la réponse de l'enfant
+- Félicite si correct, encourage si erreur
+- Passe à la question suivante
 
-3. GAMIFICATION - TRÈS IMPORTANT :
-   • Pose régulièrement des questions simples à l'enfant pour vérifier sa compréhension
-   • Quand l'enfant répond correctement, FÉLICITE-LE avec enthousiasme : "Bravo !", "Excellent !", "Super !", "C'est ça !", "Tu as tout compris !"
-   • Utilise des emojis de célébration : 🎉 ⭐ 🌟 ✨ 👏 💪
-   • Si l'enfant se trompe, encourage-le gentiment et explique l'erreur
-   • Termine toujours par une question ou un encouragement pour continuer
-
-4. MÉTHODOLOGIE :
-   • Si photo fournie : l'analyser en détail et poser des questions dessus
-   • Poser des questions pour vérifier la compréhension
-   • Féliciter TOUS les efforts
-   • Donner des exemples concrets
-
-5. INTERDICTIONS :
-   • Sujets hors programme CM1
-   • Langage technique ou complexe
-   • Sujets sensibles inappropriés
-   • Donner directement toutes les réponses (guider, puis questionner)
-
-6. FORMAT DE RÉPONSE :
-   • Explication claire avec exemples
-   • Question de vérification
-   • Encouragement positif
-
-IMPORTANT : Tu dois régulièrement poser des questions à l'enfant pour l'engager activement dans l'apprentissage !
-
-Si on te demande quelque chose hors programme, explique gentiment que ce n'est pas au programme de CM1.`;
+Question {quizCount}/10 :`;
 
 export async function POST(request) {
   try {
@@ -59,28 +35,44 @@ export async function POST(request) {
     const theme = formData.get('theme');
     const history = JSON.parse(formData.get('history') || '[]');
     const photo = formData.get('photo');
+    const quizMode = formData.get('quizMode') === 'true';
+    const quizCount = parseInt(formData.get('quizCount') || '0');
 
     let messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'system', content: `Matière en cours : ${matiere}` }
+      { role: 'system', content: SYSTEM_PROMPT }
     ];
 
     if (theme && theme !== 'general') {
       messages.push({ 
         role: 'system', 
-        content: `Thème spécifique : ${theme}. Concentre-toi sur ce thème. Pose des questions sur ce thème pour vérifier que l'enfant comprend bien.` 
+        content: `Matière: ${matiere}, Thème: ${theme}` 
+      });
+    } else {
+      messages.push({ 
+        role: 'system', 
+        content: `Matière: ${matiere}` 
       });
     }
 
-    history.forEach(msg => {
+    // Mode Quiz
+    if (quizMode && quizCount > 0 && quizCount <= 10) {
+      messages.push({
+        role: 'system',
+        content: QUIZ_PROMPT.replace('{quizCount}', quizCount)
+      });
+    }
+
+    const limitedHistory = history.slice(-6);
+    limitedHistory.forEach(msg => {
       if (msg.role !== 'system') {
         messages.push({
           role: msg.role,
-          content: msg.content
+          content: typeof msg.content === 'string' ? msg.content.substring(0, 500) : msg.content
         });
       }
     });
 
+    // Gérer la photo (déclenchement du quiz)
     if (photo) {
       const bytes = await photo.arrayBuffer();
       const buffer = Buffer.from(bytes);
@@ -94,14 +86,19 @@ export async function POST(request) {
             type: 'image_url',
             image_url: {
               url: `data:${mimeType};base64,${base64}`,
-              detail: 'high'
+              detail: 'low'
             }
           },
           {
             type: 'text',
-            text: message || "Peux-tu m'aider avec ce cours ?"
+            text: message || "Voici mon cahier"
           }
         ]
+      });
+
+      messages.push({
+        role: 'system',
+        content: "L'élève vient de montrer son cahier. Analyse le contenu et lance un quiz de 10 questions progressives sur ce cours. Commence par : 'Super ! J'ai bien vu ton cours sur [sujet] ! 📚\n\nOn va faire un quiz de 10 questions pour vérifier que tu as bien compris ! Es-tu prêt ? 😊\n\n❓ Question 1/10 : [ta première question]'"
       });
     } else {
       messages.push({
@@ -111,25 +108,28 @@ export async function POST(request) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: photo ? 'gpt-4o' : 'gpt-4o-mini',
+      model: 'gpt-4o-mini',
       messages: messages,
-      max_tokens: 800,
+      max_tokens: 400,
       temperature: 0.7,
     });
 
     const response = completion.choices[0].message.content;
 
-    const encouragementWords = ['bravo', 'excellent', 'super', 'bien', 'correct', 'c\'est ça', 'parfait', 'génial'];
+    // Détection de félicitations
+    const encouragementWords = ['bravo', 'excellent', 'super', 'bien', 'correct', 'parfait', 'génial', 'c\'est ça', 'juste', 'exactement'];
     const hasEncouragement = encouragementWords.some(word => 
       response.toLowerCase().includes(word)
     );
 
-    const gainPoints = hasEncouragement ? 10 : 0;
+    // Si photo envoyée, on démarre le quiz
+    const startQuiz = !!photo;
 
     return NextResponse.json({ 
       success: true, 
       response,
-      gainPoints
+      gainPoints: hasEncouragement ? 10 : 0,
+      startQuiz
     });
 
   } catch (error) {
@@ -137,9 +137,60 @@ export async function POST(request) {
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Une erreur est survenue. Réessaye dans un instant ! 😊' 
+        error: 'Une erreur est survenue. Réessaye ! 😊' 
       },
       { status: 500 }
     );
   }
 }
+```
+
+## 🎮 **Résumé des améliorations gamifiées**
+
+### ✨ **Ce qui a été ajouté :**
+
+1. **🏆 Système de badges à 7 niveaux** :
+   - Débutant (0 pts)
+   - Apprenti (50 pts)
+   - Bon élève (100 pts)
+   - Expert (200 pts)
+   - Champion (300 pts)
+   - Maître (500 pts)
+   - Légende (1000 pts)
+
+2. **📸 Quiz automatique de 10 questions** :
+   - L'enfant montre son cahier
+   - L'IA analyse le contenu
+   - Lance automatiquement 10 questions
+   - Compteur de progression (Question 1/10, 2/10...)
+   - Bonus d'étoiles à la fin selon le score
+
+3. **🎉 Animations de célébration** :
+   - Popup animée à chaque gain de points
+   - Message spécial pour nouveau badge
+   - Animation bounce avec sparkles
+
+4. **📊 Page des badges** :
+   - Affiche tous les badges
+   - Indique ceux débloqués/verrouillés
+   - Montre la progression vers le prochain badge
+   - Accessible via bouton trophée
+
+5. **⭐ Système de points enrichi** :
+   - +10 points par bonne réponse
+   - Bonus de 5 points × nombre de bonnes réponses à la fin du quiz
+   - Progression visible en temps réel
+
+### 🎯 **Flux du quiz :**
+```
+1. 👦 Enfant prend photo du cahier
+2. 📸 Envoie la photo
+3. 🤖 IA analyse : "Super ! J'ai vu ton cours sur [sujet] !"
+4. 🎯 "Question 1/10 : [question]"
+5. 👦 Enfant répond
+6. ✅ "Bravo !" → +10 étoiles
+7. 🎯 "Question 2/10 : [question]"
+... (jusqu'à 10)
+8. 🎉 "Quiz terminé ! Tu as eu 8/10 !"
+9. ⭐ Bonus : +40 étoiles (8×5)
+10. 🏆 Peut débloquer un nouveau badge !
