@@ -135,11 +135,34 @@ export default function ProfIA() {
       const themeName = THEMES_PAR_MATIERE[matiere]?.find(t => t.id === themeSelectionne)?.nom || '';
       const welcomeMsg = {
         role: 'assistant',
-        content: `Bonjour ! 👋 Je suis ton professeur pour ${MATIERES.find(m => m.id === matiere)?.nom}${themeName ? ` - ${themeName}` : ''} !\n\nGagne des étoiles ⭐ et débloque des badges 🏆 !\n\n📸 Montre-moi ton cahier pour un quiz de 10 questions\n✍️ Ou pose-moi une question\n\nCommençons ! 😊`
+        content: `Bonjour ! 👋 Je suis ton professeur pour ${MATIERES.find(m => m.id === matiere)?.nom}${themeName ? ` - ${themeName}` : ''} !\n\nGagne des étoiles ⭐ et débloque des badges 🏆 !\n\nCommençons ! 😊`,
+        showButtons: true
       };
       setMessages([welcomeMsg]);
     }
   }, [matiere, themeSelectionne]);
+
+  const handleQuickAction = (action) => {
+    if (action === 'quiz') {
+      cameraInputRef.current?.click();
+    } else if (action === 'question') {
+      document.querySelector('input[type="text"]')?.focus();
+    } else if (action === 'aide') {
+      const helpMsg = {
+        role: 'user',
+        content: "J'ai besoin d'aide pour réviser"
+      };
+      setMessages(prev => [...prev, helpMsg]);
+      getAssistantResponse("J'ai besoin d'aide pour réviser", false);
+    } else if (action === 'exercice') {
+      const exerciseMsg = {
+        role: 'user',
+        content: "Peux-tu me donner des exercices ?"
+      };
+      setMessages(prev => [...prev, exerciseMsg]);
+      getAssistantResponse("Peux-tu me donner des exercices ?", false);
+    }
+  };
 
   const getAssistantResponse = async (userText, isPhotoMessage = false) => {
     setLoading(true);
@@ -510,22 +533,73 @@ export default function ProfIA() {
       <div className="max-w-4xl mx-auto p-3 sm:p-4">
         <div className="space-y-3 sm:space-y-4">
           {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+            <div key={idx}>
               <div
-                className={`max-w-[85%] sm:max-w-[80%] rounded-2xl p-3 sm:p-4 ${
-                  msg.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-800 shadow-md'
-                }`}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {msg.hasPhoto && (
-                  <div className="mb-2 text-xs sm:text-sm opacity-75">📸 Photo envoyée</div>
-                )}
-                <div className="whitespace-pre-wrap text-sm sm:text-base">{msg.content}</div>
+                <div
+                  className={`max-w-[85%] sm:max-w-[80%] rounded-2xl p-3 sm:p-4 ${
+                    msg.role === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-800 shadow-md'
+                  }`}
+                >
+                  {msg.hasPhoto && (
+                    <div className="mb-2 text-xs sm:text-sm opacity-75">📸 Photo envoyée</div>
+                  )}
+                  <div className="whitespace-pre-wrap text-sm sm:text-base">{msg.content}</div>
+                </div>
               </div>
+              
+              {msg.showButtons && (
+                <div className="flex justify-start mt-3">
+                  <div className="grid grid-cols-2 gap-2 max-w-[85%] sm:max-w-[80%]">
+                    <button
+                      onClick={() => handleQuickAction('quiz')}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl p-3 sm:p-4 transition-all transform active:scale-95 shadow-lg text-left"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Camera className="w-5 h-5" />
+                        <span className="font-bold text-sm sm:text-base">Quiz Photo</span>
+                      </div>
+                      <p className="text-xs opacity-90">Montre ton cahier</p>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleQuickAction('question')}
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-xl p-3 sm:p-4 transition-all transform active:scale-95 shadow-lg text-left"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Send className="w-5 h-5" />
+                        <span className="font-bold text-sm sm:text-base">Question</span>
+                      </div>
+                      <p className="text-xs opacity-90">Pose ta question</p>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleQuickAction('aide')}
+                      className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-xl p-3 sm:p-4 transition-all transform active:scale-95 shadow-lg text-left"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <BookOpen className="w-5 h-5" />
+                        <span className="font-bold text-sm sm:text-base">Besoin d'aide</span>
+                      </div>
+                      <p className="text-xs opacity-90">Réviser une leçon</p>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleQuickAction('exercice')}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl p-3 sm:p-4 transition-all transform active:scale-95 shadow-lg text-left"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Target className="w-5 h-5" />
+                        <span className="font-bold text-sm sm:text-base">Exercices</span>
+                      </div>
+                      <p className="text-xs opacity-90">S'entraîner</p>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           {loading && (
