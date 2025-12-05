@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Camera, Send, Trash2, Loader, Mic, MicOff, X, Upload, Volume2, VolumeX, Star, Trophy, Sparkles } from 'lucide-react';
+import { BookOpen, Camera, Send, Trash2, Loader, Upload, Star, Sparkles } from 'lucide-react';
 
 const MATIERES = [
   { id: 'maths', nom: 'Mathématiques', emoji: '🔢', color: 'bg-blue-500' },
@@ -72,19 +72,12 @@ export default function ProfIA() {
   const [loading, setLoading] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [autoSpeak, setAutoSpeak] = useState(true);
-  const [isListening, setIsListening] = useState(false);
   const [points, setPoints] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
   
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const currentAudioRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -109,152 +102,23 @@ export default function ProfIA() {
       const themeName = THEMES_PAR_MATIERE[matiere]?.find(t => t.id === themeSelectionne)?.nom || '';
       const welcomeMsg = {
         role: 'assistant',
-        content: `Bonjour ! 👋 Je suis ton professeur pour ${MATIERES.find(m => m.id === matiere)?.nom}${themeName ? ` - ${themeName}` : ''} !\n\nTu gagnes des étoiles ⭐ quand tu réponds bien !\n\nTu peux :\n🎤 Me parler directement\n📸 Me montrer ton cahier\n✍️ Écrire ta question\n\nCommençons ! 😊`
+        content: `Bonjour ! 👋 Je suis ton professeur pour ${MATIERES.find(m => m.id === matiere)?.nom}${themeName ? ` - ${themeName}` : ''} !\n\nTu gagnes des étoiles ⭐ quand tu réponds bien aux questions !\n\n📸 Tu peux me montrer ton cahier\n✍️ Ou écrire ta question\n\nCommençons ! 😊`
       };
       setMessages([welcomeMsg]);
-      if (autoSpeak) {
-        speakText(welcomeMsg.content);
-      }
     }
   }, [matiere, themeSelectionne]);
 
-  const speakText = async (text) => {
-    if (!autoSpeak || !text) return;
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
-    setIsSpeaking(true);
-
-    try {
-      const response = await fetch('/api/speak', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      });
-
-      if (response.ok) {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        currentAudioRef.current = audio;
-        
-        audio.onended = () => {
-          setIsSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-          if (autoSpeak) {
-            setTimeout(() => startListening(), 500);
-          }
-        };
-        audio.onerror = () => {
-          setIsSpeaking(false);
-          speakWithWebAPI(text);
-        };
-        await audio.play();
-      } else {
-        speakWithWebAPI(text);
-      }
-    } catch (error) {
-      console.error('Erreur TTS:', error);
-      speakWithWebAPI(text);
-    }
-  };
-
-  const speakWithWebAPI = (text) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fr-FR';
-    utterance.rate = 0.9;
-    utterance.pitch = 1.1;
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      if (autoSpeak) {
-        setTimeout(() => startListening(), 500);
-      }
-    };
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const stopSpeaking = () => {
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current = null;
-    }
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
-  };
-
-  const startListening = async () => {
-    if (isRecording || isListening) return;
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        await transcribeAndRespond(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      setIsListening(true);
-    } catch (error) {
-      console.error('Erreur microphone:', error);
-      alert('Impossible d\'accéder au microphone 🎤');
-    }
-  };
-
-  const stopListening = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setIsListening(false);
-    }
-  };
-
-  const transcribeAndRespond = async (audioBlob) => {
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'audio.webm');
-      
-      const response = await fetch('/api/transcribe', {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await response.json();
-      if (data.success && data.text.trim()) {
-        const userMessage = {
-          role: 'user',
-          content: data.text
-        };
-        setMessages(prev => [...prev, userMessage]);
-        await getAssistantResponse(data.text);
-      } else {
-        if (autoSpeak && !loading) {
-          setTimeout(() => startListening(), 500);
-        }
-      }
-    } catch (error) {
-      console.error('Erreur transcription:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const getAssistantResponse = async (userText) => {
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append('message', userText);
       formData.append('matiere', matiere);
       formData.append('theme', themeSelectionne || '');
-      formData.append('history', JSON.stringify(messages));
+      
+      // Limiter l'historique aux 4 derniers messages pour économiser les tokens
+      const recentHistory = messages.slice(-4);
+      formData.append('history', JSON.stringify(recentHistory));
       
       if (photo) {
         formData.append('photo', photo);
@@ -277,15 +141,23 @@ export default function ProfIA() {
         if (data.gainPoints) {
           addPoints(data.gainPoints);
         }
-        
-        if (autoSpeak) {
-          await speakText(data.response);
-        }
+      } else {
+        const errorMessage = {
+          role: 'assistant',
+          content: data.error || 'Oups ! 😅 Une erreur est survenue. Réessaye !'
+        };
+        setMessages(prev => [...prev, errorMessage]);
       }
 
       removePhoto();
     } catch (error) {
       console.error('Erreur:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Oups ! 😅 Une erreur est survenue. Réessaye !'
+      }]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -343,22 +215,11 @@ export default function ProfIA() {
   };
 
   const resetChat = () => {
-    stopSpeaking();
-    stopListening();
     setMessages([]);
     setMatiere('');
     setThemeSelectionne('');
     setInput('');
     removePhoto();
-  };
-
-  const toggleAutoSpeak = () => {
-    const newState = !autoSpeak;
-    setAutoSpeak(newState);
-    if (!newState) {
-      stopSpeaking();
-      stopListening();
-    }
   };
 
   if (!matiere) {
@@ -371,7 +232,7 @@ export default function ProfIA() {
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Prof IA CM1</h1>
             </div>
             <p className="text-base sm:text-lg text-gray-600">
-              Ton professeur vocal ! 🎤🔊
+              Ton professeur virtuel pour réviser ! 📚
             </p>
           </div>
 
@@ -399,10 +260,10 @@ export default function ProfIA() {
               💡 Comment ça marche ?
             </h3>
             <ul className="space-y-2 text-sm sm:text-base text-gray-700">
-              <li>🎤 Parle au professeur</li>
-              <li>📚 Choisis ta matière et ton thème</li>
-              <li>⭐ Gagne des points !</li>
-              <li>📸 Montre ton cahier</li>
+              <li>1️⃣ Choisis ta matière</li>
+              <li>2️⃣ Sélectionne un thème</li>
+              <li>3️⃣ Pose tes questions</li>
+              <li>4️⃣ Gagne des étoiles ⭐</li>
             </ul>
           </div>
         </div>
@@ -484,7 +345,7 @@ export default function ProfIA() {
               <p className="text-xs sm:text-sm opacity-90">
                 {themeSelectionne && themeSelectionne !== 'general' 
                   ? THEMES_PAR_MATIERE[matiere]?.find(t => t.id === themeSelectionne)?.nom
-                  : 'Mode vocal'
+                  : 'CM1'
                 }
               </p>
             </div>
@@ -494,12 +355,6 @@ export default function ProfIA() {
               <Star className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="font-bold text-xs sm:text-sm">{points}</span>
             </div>
-            <button
-              onClick={toggleAutoSpeak}
-              className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
-            >
-              {autoSpeak ? <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" /> : <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" />}
-            </button>
             <button
               onClick={resetChat}
               className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
@@ -541,43 +396,6 @@ export default function ProfIA() {
           <div ref={messagesEndRef} />
         </div>
       </div>
-
-      {autoSpeak && (
-        <div className="fixed top-20 sm:top-24 left-1/2 transform -translate-x-1/2 z-40">
-          {isSpeaking && (
-            <div className="bg-green-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-lg flex items-center gap-2 animate-pulse">
-              <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-semibold text-xs sm:text-base">Le prof parle...</span>
-            </div>
-          )}
-          {isListening && !isSpeaking && (
-            <div className="bg-blue-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-lg flex items-center gap-2 animate-pulse">
-              <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-semibold text-xs sm:text-base">Je t'écoute...</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {autoSpeak && (
-        <div className="fixed bottom-28 sm:bottom-32 left-1/2 transform -translate-x-1/2 z-30">
-          <button
-            onClick={isListening ? stopListening : startListening}
-            disabled={isSpeaking || loading}
-            className={`${
-              isListening 
-                ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                : 'bg-green-500 hover:bg-green-600'
-            } text-white rounded-full p-6 sm:p-8 shadow-2xl transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            {isListening ? (
-              <MicOff className="w-8 h-8 sm:w-12 sm:h-12" />
-            ) : (
-              <Mic className="w-8 h-8 sm:w-12 sm:h-12" />
-            )}
-          </button>
-        </div>
-      )}
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
         <div className="max-w-4xl mx-auto p-3 sm:p-4">
