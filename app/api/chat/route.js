@@ -7,25 +7,46 @@ const openai = new OpenAI({
 
 const SYSTEM_PROMPT = `Tu es un professeur CM1 bienveillant. Réponds simplement, avec vocabulaire adapté à un enfant de 9-10 ans.
 
-RÈGLES :
+RÈGLES IMPORTANTES :
 - Programme CM1 uniquement (maths, français, sciences, histoire-géo, EMC)
 - Phrases courtes et claires
-- Pose des questions pour vérifier la compréhension
+- POSE TOUJOURS UNE SEULE QUESTION À LA FOIS
+- Attends la réponse de l'enfant avant de passer à la question suivante
 - Félicite quand c'est juste : "Bravo !", "Excellent !", "Super !"
 - Si erreur : encourage et explique gentiment
 - Utilise des emojis modérément
 
+INTERDIT :
+- Ne jamais donner plusieurs questions d'un coup
+- Ne jamais faire de listes de questions (Question 1, Question 2, etc.)
+- Toujours poser UNE question, attendre la réponse, puis passer à la suivante
+
 GAMIFICATION : Quand l'enfant répond bien, félicite avec enthousiasme !`;
 
-const QUIZ_PROMPT = `MODE QUIZ ACTIVÉ - 10 QUESTIONS :
-Tu dois poser des questions basées sur le contenu de la photo du cahier.
-- Pose UNE SEULE question à la fois
-- Question claire et adaptée CM1
-- Attends la réponse de l'enfant
-- Félicite si correct, encourage si erreur
-- Passe à la question suivante
+const QUIZ_PROMPT = `MODE QUIZ - Question {quizCount}/10 :
 
-Question {quizCount}/10 :`;
+Tu es en train de faire passer un quiz basé sur le cahier de l'élève.
+- Pose UNE SEULE question claire et adaptée CM1
+- Attends la réponse de l'enfant
+- Félicite si correct : "Bravo ! C'est exact ! ⭐" puis passe à la question suivante
+- Si erreur : "Presque ! Voici la réponse : [explication]" puis passe à la question suivante
+- Ne pose JAMAIS plusieurs questions à la fois
+
+Pose maintenant la question {quizCount}/10 :`;
+
+const EXERCISE_PROMPT = `L'élève demande des exercices.
+
+RÈGLE ABSOLUE : Pose UNE SEULE question/exercice à la fois.
+
+Format :
+"Super ! On va s'entraîner ensemble ! 💪
+
+Voici ton premier exercice :
+[Ta question ou exercice]
+
+Réponds quand tu es prêt ! 😊"
+
+NE DONNE PAS de liste d'exercices. UNE question à la fois uniquement.`;
 
 export async function POST(request) {
   try {
@@ -54,10 +75,25 @@ export async function POST(request) {
       });
     }
 
+    // Détection de demande d'exercices
+    const isExerciseRequest = message && (
+      message.toLowerCase().includes('exercice') ||
+      message.toLowerCase().includes('entrainer') ||
+      message.toLowerCase().includes('entraîner') ||
+      message.toLowerCase().includes('pratique')
+    );
+
+    if (isExerciseRequest && !quizMode) {
+      messages.push({
+        role: 'system',
+        content: EXERCISE_PROMPT
+      });
+    }
+
     if (quizMode && quizCount > 0 && quizCount <= 10) {
       messages.push({
         role: 'system',
-        content: QUIZ_PROMPT.replace('{quizCount}', quizCount)
+        content: QUIZ_PROMPT.replace(/{quizCount}/g, quizCount)
       });
     }
 
@@ -96,7 +132,7 @@ export async function POST(request) {
 
       messages.push({
         role: 'system',
-        content: "L'élève vient de montrer son cahier. Analyse le contenu et lance un quiz de 10 questions progressives sur ce cours. Commence par : 'Super ! J'ai bien vu ton cours sur [sujet] ! 📚\n\nOn va faire un quiz de 10 questions pour vérifier que tu as bien compris ! Es-tu prêt ? 😊\n\n❓ Question 1/10 : [ta première question]'"
+        content: "L'élève vient de montrer son cahier. Analyse le contenu et commence un quiz. Réponds : 'Super ! J'ai bien vu ton cours sur [sujet] ! 📚\n\nOn va faire un quiz de 10 questions pour vérifier que tu as bien compris !\n\n❓ Question 1/10 : [POSE UNE SEULE QUESTION]'\n\nATTENTION : Ne pose QU'UNE SEULE question, pas de liste !"
       });
     } else {
       messages.push({
@@ -108,7 +144,7 @@ export async function POST(request) {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: messages,
-      max_tokens: 400,
+      max_tokens: 300,
       temperature: 0.7,
     });
 
@@ -139,3 +175,40 @@ export async function POST(request) {
     );
   }
 }
+```
+
+## 🎯 **Changements principaux**
+
+### ✅ **Ce qui a été modifié :**
+
+1. **Prompt renforcé** : Instructions claires "UNE SEULE QUESTION À LA FOIS"
+2. **Interdictions explicites** : Ne jamais faire de listes
+3. **Format imposé** : Le prof doit attendre la réponse avant de continuer
+4. **Détection exercices** : Quand l'enfant demande des exercices, un prompt spécial force une seule question
+5. **max_tokens réduit** : 300 au lieu de 400 (pour forcer des réponses plus courtes)
+
+### 📝 **Exemple de conversation corrigée**
+
+**AVANT** (❌ mauvais) :
+```
+Prof: Voici 3 questions :
+1. Qui étaient les Grecs ?
+2. Nomme deux civilisations
+3. Écris sur les Romains
+```
+
+**APRÈS** (✅ correct) :
+```
+Prof: Super ! On va s'entraîner sur l'Antiquité ! 💪
+
+❓ Question 1 : Qui étaient les Grecs et qu'ont-ils inventé ?
+
+Réponds quand tu es prêt ! 😊
+
+[Enfant répond]
+
+Prof: Bravo ! Excellent ! ⭐ Les Grecs ont bien inventé la démocratie !
+
+❓ Question 2 : Peux-tu me nommer une grande civilisation de l'Antiquité ?
+
+[Et ainsi de suite...]
