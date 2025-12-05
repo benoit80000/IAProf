@@ -54,7 +54,6 @@ export async function POST(request) {
       });
     }
 
-    // Mode Quiz
     if (quizMode && quizCount > 0 && quizCount <= 10) {
       messages.push({
         role: 'system',
@@ -72,7 +71,6 @@ export async function POST(request) {
       }
     });
 
-    // Gérer la photo (déclenchement du quiz)
     if (photo) {
       const bytes = await photo.arrayBuffer();
       const buffer = Buffer.from(bytes);
@@ -116,13 +114,11 @@ export async function POST(request) {
 
     const response = completion.choices[0].message.content;
 
-    // Détection de félicitations
     const encouragementWords = ['bravo', 'excellent', 'super', 'bien', 'correct', 'parfait', 'génial', 'c\'est ça', 'juste', 'exactement'];
     const hasEncouragement = encouragementWords.some(word => 
       response.toLowerCase().includes(word)
     );
 
-    // Si photo envoyée, on démarre le quiz
     const startQuiz = !!photo;
 
     return NextResponse.json({ 
@@ -143,54 +139,3 @@ export async function POST(request) {
     );
   }
 }
-```
-
-## 🎮 **Résumé des améliorations gamifiées**
-
-### ✨ **Ce qui a été ajouté :**
-
-1. **🏆 Système de badges à 7 niveaux** :
-   - Débutant (0 pts)
-   - Apprenti (50 pts)
-   - Bon élève (100 pts)
-   - Expert (200 pts)
-   - Champion (300 pts)
-   - Maître (500 pts)
-   - Légende (1000 pts)
-
-2. **📸 Quiz automatique de 10 questions** :
-   - L'enfant montre son cahier
-   - L'IA analyse le contenu
-   - Lance automatiquement 10 questions
-   - Compteur de progression (Question 1/10, 2/10...)
-   - Bonus d'étoiles à la fin selon le score
-
-3. **🎉 Animations de célébration** :
-   - Popup animée à chaque gain de points
-   - Message spécial pour nouveau badge
-   - Animation bounce avec sparkles
-
-4. **📊 Page des badges** :
-   - Affiche tous les badges
-   - Indique ceux débloqués/verrouillés
-   - Montre la progression vers le prochain badge
-   - Accessible via bouton trophée
-
-5. **⭐ Système de points enrichi** :
-   - +10 points par bonne réponse
-   - Bonus de 5 points × nombre de bonnes réponses à la fin du quiz
-   - Progression visible en temps réel
-
-### 🎯 **Flux du quiz :**
-```
-1. 👦 Enfant prend photo du cahier
-2. 📸 Envoie la photo
-3. 🤖 IA analyse : "Super ! J'ai vu ton cours sur [sujet] !"
-4. 🎯 "Question 1/10 : [question]"
-5. 👦 Enfant répond
-6. ✅ "Bravo !" → +10 étoiles
-7. 🎯 "Question 2/10 : [question]"
-... (jusqu'à 10)
-8. 🎉 "Quiz terminé ! Tu as eu 8/10 !"
-9. ⭐ Bonus : +40 étoiles (8×5)
-10. 🏆 Peut débloquer un nouveau badge !
