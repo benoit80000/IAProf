@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Camera, Send, Trash2, Loader, Upload, Star, Sparkles } from 'lucide-react';
+import { BookOpen, Camera, Send, Trash2, Loader, Upload, Star, Trophy, Award, Target, Zap, Crown, Sparkles, Medal, X } from 'lucide-react';
 
 const MATIERES = [
   { id: 'maths', nom: 'Mathématiques', emoji: '🔢', color: 'bg-blue-500' },
@@ -64,6 +64,16 @@ const THEMES_PAR_MATIERE = {
   ]
 };
 
+const BADGES = [
+  { id: 'debutant', nom: 'Débutant', icon: Star, points: 0, color: 'text-gray-400', desc: 'Commence l\'aventure !' },
+  { id: 'apprenti', nom: 'Apprenti', icon: Target, points: 50, color: 'text-blue-500', desc: '50 points' },
+  { id: 'bon-eleve', nom: 'Bon élève', icon: Award, points: 100, color: 'text-green-500', desc: '100 points' },
+  { id: 'expert', nom: 'Expert', icon: Zap, points: 200, color: 'text-yellow-500', desc: '200 points' },
+  { id: 'champion', nom: 'Champion', icon: Trophy, points: 300, color: 'text-orange-500', desc: '300 points' },
+  { id: 'maitre', nom: 'Maître', icon: Crown, points: 500, color: 'text-purple-500', desc: '500 points' },
+  { id: 'legende', nom: 'Légende', icon: Medal, points: 1000, color: 'text-pink-500', desc: '1000 points' }
+];
+
 export default function ProfIA() {
   const [matiere, setMatiere] = useState('');
   const [themeSelectionne, setThemeSelectionne] = useState('');
@@ -74,6 +84,11 @@ export default function ProfIA() {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [points, setPoints] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationText, setCelebrationText] = useState('');
+  const [showBadges, setShowBadges] = useState(false);
+  const [quizMode, setQuizMode] = useState(false);
+  const [quizCount, setQuizCount] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
   
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -87,14 +102,32 @@ export default function ProfIA() {
     scrollToBottom();
   }, [messages]);
 
-  const celebrate = () => {
+  const celebrate = (text = '') => {
+    setCelebrationText(text);
     setShowCelebration(true);
     setTimeout(() => setShowCelebration(false), 3000);
   };
 
   const addPoints = (amount) => {
-    setPoints(prev => prev + amount);
-    celebrate();
+    const newPoints = points + amount;
+    const oldBadge = BADGES.filter(b => b.points <= points).pop();
+    const newBadge = BADGES.filter(b => b.points <= newPoints).pop();
+    
+    setPoints(newPoints);
+    
+    if (newBadge && newBadge.id !== oldBadge?.id) {
+      celebrate(`🎉 Nouveau badge : ${newBadge.nom} ! 🎉`);
+    } else {
+      celebrate(`+${amount} étoiles ! ⭐`);
+    }
+  };
+
+  const getCurrentBadge = () => {
+    return BADGES.filter(b => b.points <= points).pop() || BADGES[0];
+  };
+
+  const getNextBadge = () => {
+    return BADGES.find(b => b.points > points);
   };
 
   useEffect(() => {
@@ -102,25 +135,26 @@ export default function ProfIA() {
       const themeName = THEMES_PAR_MATIERE[matiere]?.find(t => t.id === themeSelectionne)?.nom || '';
       const welcomeMsg = {
         role: 'assistant',
-        content: `Bonjour ! 👋 Je suis ton professeur pour ${MATIERES.find(m => m.id === matiere)?.nom}${themeName ? ` - ${themeName}` : ''} !\n\nTu gagnes des étoiles ⭐ quand tu réponds bien aux questions !\n\n📸 Tu peux me montrer ton cahier\n✍️ Ou écrire ta question\n\nCommençons ! 😊`
+        content: `Bonjour ! 👋 Je suis ton professeur pour ${MATIERES.find(m => m.id === matiere)?.nom}${themeName ? ` - ${themeName}` : ''} !\n\nGagne des étoiles ⭐ et débloque des badges 🏆 !\n\n📸 Montre-moi ton cahier pour un quiz de 10 questions\n✍️ Ou pose-moi une question\n\nCommençons ! 😊`
       };
       setMessages([welcomeMsg]);
     }
   }, [matiere, themeSelectionne]);
 
-  const getAssistantResponse = async (userText) => {
+  const getAssistantResponse = async (userText, isPhotoMessage = false) => {
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append('message', userText);
       formData.append('matiere', matiere);
       formData.append('theme', themeSelectionne || '');
+      formData.append('quizMode', quizMode.toString());
+      formData.append('quizCount', quizCount.toString());
       
-      // Limiter l'historique aux 4 derniers messages pour économiser les tokens
-      const recentHistory = messages.slice(-4);
+      const recentHistory = messages.slice(-6);
       formData.append('history', JSON.stringify(recentHistory));
       
-      if (photo) {
+      if (photo && isPhotoMessage) {
         formData.append('photo', photo);
       }
 
@@ -140,6 +174,31 @@ export default function ProfIA() {
         
         if (data.gainPoints) {
           addPoints(data.gainPoints);
+          if (quizMode) {
+            setCorrectAnswers(prev => prev + 1);
+          }
+        }
+
+        if (data.startQuiz) {
+          setQuizMode(true);
+          setQuizCount(1);
+          setCorrectAnswers(0);
+        }
+
+        if (quizMode && quizCount < 10) {
+          setQuizCount(prev => prev + 1);
+        } else if (quizMode && quizCount >= 10) {
+          setQuizMode(false);
+          setQuizCount(0);
+          const bonus = correctAnswers * 5;
+          setTimeout(() => {
+            const finalMsg = {
+              role: 'assistant',
+              content: `🎉 Quiz terminé ! Tu as eu ${correctAnswers}/10 bonnes réponses !\n\n⭐ Bonus : +${bonus} étoiles !\n\nBravo pour ton travail ! Continue comme ça ! 💪`
+            };
+            setMessages(prev => [...prev, finalMsg]);
+            addPoints(bonus);
+          }, 1000);
         }
       } else {
         const errorMessage = {
@@ -149,7 +208,9 @@ export default function ProfIA() {
         setMessages(prev => [...prev, errorMessage]);
       }
 
-      removePhoto();
+      if (isPhotoMessage) {
+        removePhoto();
+      }
     } catch (error) {
       console.error('Erreur:', error);
       setMessages(prev => [...prev, {
@@ -205,13 +266,13 @@ export default function ProfIA() {
 
     const userMessage = {
       role: 'user',
-      content: input,
+      content: photo ? (input || "Voici mon cahier, pose-moi des questions !") : input,
       hasPhoto: !!photo
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    await getAssistantResponse(input);
+    await getAssistantResponse(userMessage.content, !!photo);
   };
 
   const resetChat = () => {
@@ -220,6 +281,9 @@ export default function ProfIA() {
     setThemeSelectionne('');
     setInput('');
     removePhoto();
+    setQuizMode(false);
+    setQuizCount(0);
+    setCorrectAnswers(0);
   };
 
   if (!matiere) {
@@ -236,7 +300,23 @@ export default function ProfIA() {
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-8">
+          <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-8 mb-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-yellow-100 px-4 py-2 rounded-full">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  <span className="font-bold text-lg">{points}</span>
+                </div>
+                <button
+                  onClick={() => setShowBadges(true)}
+                  className="flex items-center gap-2 bg-purple-100 px-4 py-2 rounded-full hover:bg-purple-200 transition-colors"
+                >
+                  <Trophy className="w-5 h-5 text-purple-600" />
+                  <span className="font-semibold text-sm">Badges</span>
+                </button>
+              </div>
+            </div>
+
             <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 text-gray-800">
               Quelle matière veux-tu réviser ? 📚
             </h2>
@@ -255,15 +335,15 @@ export default function ProfIA() {
             </div>
           </div>
 
-          <div className="mt-6 sm:mt-8 bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
             <h3 className="font-bold text-base sm:text-lg mb-3 text-gray-800">
               💡 Comment ça marche ?
             </h3>
             <ul className="space-y-2 text-sm sm:text-base text-gray-700">
-              <li>1️⃣ Choisis ta matière</li>
-              <li>2️⃣ Sélectionne un thème</li>
-              <li>3️⃣ Pose tes questions</li>
-              <li>4️⃣ Gagne des étoiles ⭐</li>
+              <li>📸 <strong>Montre ton cahier</strong> → Quiz de 10 questions !</li>
+              <li>✍️ Pose des questions libres</li>
+              <li>⭐ Gagne des étoiles à chaque bonne réponse</li>
+              <li>🏆 Débloque des badges prestigieux !</li>
             </ul>
           </div>
         </div>
@@ -325,43 +405,105 @@ export default function ProfIA() {
   }
 
   const currentMatiere = MATIERES.find(m => m.id === matiere);
+  const currentBadge = getCurrentBadge();
+  const nextBadge = getNextBadge();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 pb-32 sm:pb-40">
       {showCelebration && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="animate-bounce">
-            <Sparkles className="w-32 h-32 text-yellow-400" />
+          <div className="bg-white rounded-3xl shadow-2xl p-8 animate-bounce">
+            <Sparkles className="w-24 h-24 text-yellow-400 mx-auto mb-4" />
+            <p className="text-2xl font-bold text-center">{celebrationText}</p>
+          </div>
+        </div>
+      )}
+
+      {showBadges && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">🏆 Tes Badges</h2>
+              <button onClick={() => setShowBadges(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="mb-6 p-4 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl">
+              <p className="text-center text-lg font-semibold mb-2">Tu as {points} étoiles ⭐</p>
+              {nextBadge && (
+                <p className="text-center text-sm text-gray-600">
+                  Plus que {nextBadge.points - points} étoiles pour débloquer <strong>{nextBadge.nom}</strong> !
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {BADGES.map((badge) => {
+                const Icon = badge.icon;
+                const unlocked = points >= badge.points;
+                return (
+                  <div
+                    key={badge.id}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      unlocked
+                        ? 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50'
+                        : 'border-gray-200 bg-gray-50 opacity-50'
+                    }`}
+                  >
+                    <Icon className={`w-12 h-12 mx-auto mb-2 ${unlocked ? badge.color : 'text-gray-300'}`} />
+                    <h3 className="font-bold text-center mb-1">{badge.nom}</h3>
+                    <p className="text-xs text-center text-gray-600">{badge.desc}</p>
+                    {unlocked && <p className="text-center text-green-600 font-semibold mt-2">✓ Débloqué !</p>}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
 
       <div className={`${currentMatiere.color} text-white shadow-lg sticky top-0 z-40`}>
-        <div className="max-w-4xl mx-auto p-3 sm:p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-2xl sm:text-3xl">{currentMatiere.emoji}</span>
-            <div>
-              <h1 className="text-sm sm:text-xl font-bold">{currentMatiere.nom}</h1>
-              <p className="text-xs sm:text-sm opacity-90">
-                {themeSelectionne && themeSelectionne !== 'general' 
-                  ? THEMES_PAR_MATIERE[matiere]?.find(t => t.id === themeSelectionne)?.nom
-                  : 'CM1'
-                }
-              </p>
+        <div className="max-w-4xl mx-auto p-3 sm:p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-2xl sm:text-3xl">{currentMatiere.emoji}</span>
+              <div>
+                <h1 className="text-sm sm:text-xl font-bold">{currentMatiere.nom}</h1>
+                <p className="text-xs sm:text-sm opacity-90">
+                  {themeSelectionne && themeSelectionne !== 'general' 
+                    ? THEMES_PAR_MATIERE[matiere]?.find(t => t.id === themeSelectionne)?.nom
+                    : 'CM1'
+                  }
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={() => setShowBadges(true)}
+                className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
+              >
+                <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+              <div className="flex items-center gap-1 bg-yellow-400 text-gray-800 px-2 sm:px-3 py-1 rounded-full">
+                <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="font-bold text-xs sm:text-sm">{points}</span>
+              </div>
+              <button
+                onClick={resetChat}
+                className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
             </div>
           </div>
-          <div className="flex gap-2 items-center">
-            <div className="flex items-center gap-1 bg-yellow-400 text-gray-800 px-2 sm:px-3 py-1 rounded-full">
-              <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="font-bold text-xs sm:text-sm">{points}</span>
+          
+          {quizMode && (
+            <div className="bg-white/20 rounded-xl p-2 flex items-center justify-between">
+              <span className="text-xs sm:text-sm font-semibold">🎯 Mode Quiz</span>
+              <span className="text-xs sm:text-sm font-bold">Question {quizCount}/10</span>
             </div>
-            <button
-              onClick={resetChat}
-              className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
-            >
-              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
+          )}
         </div>
       </div>
 
