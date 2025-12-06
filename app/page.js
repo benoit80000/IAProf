@@ -24,135 +24,11 @@ import {
   User,
 } from "lucide-react";
 
+import useLocalStorage from "./hooks/useLocalStorage";
+import { MATIERES, THEMES_PAR_MATIERE, BADGES, AVATARS, AVATAR_COLORS, MINI_GAMES } from "./constants/gameData";
+
 // ==================== CONSTANTS ====================
-const MATIERES = [
-  { id: "maths", nom: "Mathématiques", emoji: "🔢", color: "bg-blue-500" },
-  { id: "francais", nom: "Français", emoji: "📝", color: "bg-purple-500" },
-  { id: "sciences", nom: "Sciences", emoji: "🔬", color: "bg-green-500" },
-  { id: "histoire", nom: "Histoire-Géo", emoji: "🌍", color: "bg-orange-500" },
-  { id: "emc", nom: "EMC", emoji: "🤝", color: "bg-pink-500" },
-];
-
-const THEMES_PAR_MATIERE = {
-  maths: [
-    { id: "fractions", nom: "Les fractions", emoji: "🍕" },
-    { id: "grands-nombres", nom: "Grands nombres", emoji: "🔢" },
-    { id: "additions", nom: "Additions", emoji: "➕" },
-    { id: "multiplications", nom: "Multiplications", emoji: "✖️" },
-    { id: "divisions", nom: "Divisions", emoji: "➗" },
-    { id: "geometrie", nom: "Géométrie", emoji: "📐" },
-    { id: "mesures", nom: "Mesures", emoji: "📏" },
-    { id: "problemes", nom: "Problèmes", emoji: "🧩" },
-  ],
-  francais: [
-    { id: "conjugaison", nom: "Conjugaison", emoji: "⏰" },
-    { id: "grammaire", nom: "Grammaire", emoji: "📖" },
-    { id: "orthographe", nom: "Orthographe", emoji: "✍️" },
-    { id: "vocabulaire", nom: "Vocabulaire", emoji: "📚" },
-    { id: "lecture", nom: "Lecture", emoji: "📰" },
-    { id: "redaction", nom: "Rédaction", emoji: "📝" },
-    { id: "cod-coi", nom: "COD/COI", emoji: "🎯" },
-    { id: "types-phrases", nom: "Types phrases", emoji: "❓" },
-  ],
-  sciences: [
-    { id: "corps-humain", nom: "Corps humain", emoji: "🧍" },
-    { id: "digestion", nom: "Digestion", emoji: "🍎" },
-    { id: "respiration", nom: "Respiration", emoji: "💨" },
-    { id: "plantes", nom: "Plantes", emoji: "🌱" },
-    { id: "animaux", nom: "Animaux", emoji: "🦋" },
-    { id: "environnement", nom: "Environnement", emoji: "🌍" },
-    { id: "energie", nom: "Énergie", emoji: "⚡" },
-    { id: "eau", nom: "L'eau", emoji: "💧" },
-  ],
-  histoire: [
-    { id: "prehistoire", nom: "Préhistoire", emoji: "🦴" },
-    { id: "antiquite", nom: "Antiquité", emoji: "🏛️" },
-    { id: "moyen-age", nom: "Moyen Âge", emoji: "🏰" },
-    { id: "temps-modernes", nom: "Temps modernes", emoji: "⚓" },
-    { id: "france-geo", nom: "Géo France", emoji: "🗺️" },
-    { id: "regions", nom: "Régions", emoji: "🇫🇷" },
-    { id: "relief", nom: "Relief", emoji: "⛰️" },
-    { id: "villes", nom: "Grandes villes", emoji: "🏙️" },
-  ],
-  emc: [
-    { id: "respect", nom: "Respect", emoji: "🤝" },
-    { id: "vivre-ensemble", nom: "Vivre ensemble", emoji: "👥" },
-    { id: "regles", nom: "Règles de vie", emoji: "📋" },
-    { id: "droits", nom: "Droits/Devoirs", emoji: "⚖️" },
-    { id: "egalite", nom: "Égalité", emoji: "🟰" },
-    { id: "environnement", nom: "Environnement", emoji: "♻️" },
-    { id: "solidarite", nom: "Solidarité", emoji: "💚" },
-    { id: "citoyennete", nom: "Citoyenneté", emoji: "🗳️" },
-  ],
-};
-
-const BADGES = [
-  { id: "debutant", nom: "Débutant", icon: Star, points: 0, color: "text-gray-400", desc: "Commence l'aventure !" },
-  { id: "apprenti", nom: "Apprenti", icon: Target, points: 50, color: "text-blue-500", desc: "50 points" },
-  { id: "bon-eleve", nom: "Bon élève", icon: Award, points: 100, color: "text-green-500", desc: "100 points" },
-  { id: "expert", nom: "Expert", icon: Zap, points: 200, color: "text-yellow-500", desc: "200 points" },
-  { id: "champion", nom: "Champion", icon: Trophy, points: 300, color: "text-orange-500", desc: "300 points" },
-  { id: "maitre", nom: "Maître", icon: Crown, points: 500, color: "text-purple-500", desc: "500 points" },
-  { id: "legende", nom: "Légende", icon: Medal, points: 1000, color: "text-pink-500", desc: "1000 points" },
-];
-
-const AVATARS = [
-  { id: "cat", emoji: "🐱", nom: "Chat", cost: 0 },
-  { id: "dog", emoji: "🐶", nom: "Chien", cost: 0 },
-  { id: "rabbit", emoji: "🐰", nom: "Lapin", cost: 0 },
-  { id: "fox", emoji: "🦊", nom: "Renard", cost: 50 },
-  { id: "lion", emoji: "🦁", nom: "Lion", cost: 100 },
-  { id: "unicorn", emoji: "🦄", nom: "Licorne", cost: 150 },
-  { id: "dragon", emoji: "🐲", nom: "Dragon", cost: 200 },
-  { id: "robot", emoji: "🤖", nom: "Robot", cost: 250 },
-  { id: "alien", emoji: "👽", nom: "Alien", cost: 300 },
-  { id: "superhero", emoji: "🦸", nom: "Super-héros", cost: 500 },
-];
-
-const AVATAR_COLORS = [
-  { id: "blue", color: "bg-blue-500", nom: "Bleu", cost: 0 },
-  { id: "purple", color: "bg-purple-500", nom: "Violet", cost: 0 },
-  { id: "green", color: "bg-green-500", nom: "Vert", cost: 30 },
-  { id: "orange", color: "bg-orange-500", nom: "Orange", cost: 30 },
-  { id: "pink", color: "bg-pink-500", nom: "Rose", cost: 50 },
-  { id: "yellow", color: "bg-yellow-500", nom: "Jaune", cost: 50 },
-  { id: "red", color: "bg-red-500", nom: "Rouge", cost: 75 },
-  { id: "rainbow", color: "bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500", nom: "Arc-en-ciel", cost: 200 },
-];
-
-const MINI_GAMES = [
-  { id: "calcul-mental", nom: "Calcul Mental", emoji: "🧮", desc: "Réponds vite aux calculs !" },
-  { id: "pendu", nom: "Le Pendu", emoji: "📝", desc: "Trouve le mot mystère" },
-  { id: "vrai-faux", nom: "Vrai ou Faux", emoji: "✅", desc: "Teste tes connaissances" },
-];
-
 // ==================== HOOKS ====================
-const useLocalStorage = (key, initialValue) => {
-  const [storedValue, setStoredValue] = useState(() => {
-    if (typeof window === "undefined") return initialValue;
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      return initialValue;
-    }
-  });
-
-  const setValue = (value) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return [storedValue, setValue];
-};
-
 const generateDailyMissions = () => {
   const today = new Date().toDateString();
   return {
@@ -295,6 +171,8 @@ const AvatarSelector = ({
   unlockedAvatars,
   unlockedColors,
   points,
+  showPointsPop,
+  lastPointsGain,
   onSelectAvatar,
   onSelectColor,
   onUnlock,
@@ -376,8 +254,13 @@ const AvatarSelector = ({
         </div>
 
         <div className="mt-4 p-3 bg-yellow-50 rounded-xl text-center">
-          <p className="text-sm">
+          <p className="text-sm flex items-center justify-center gap-2">
             Tes étoiles : <strong>{points} ⭐</strong>
+            {showPointsPop && (
+              <span className="text-green-600 text-xs font-bold animate-bounce">
+                +{lastPointsGain}
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -639,6 +522,9 @@ export default function ProfIA() {
   const [showAvatar, setShowAvatar] = useState(false);
   const [showMiniGames, setShowMiniGames] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
+  const [lastPointsGain, setLastPointsGain] = useState(0);
+  const [showPointsPop, setShowPointsPop] = useState(false);
+
 
   // Refs
   const fileInputRef = useRef(null);
@@ -693,17 +579,23 @@ export default function ProfIA() {
   };
 
   const addPoints = (amount) => {
-    const newPoints = points + amount;
-    const oldBadge = BADGES.filter((b) => b.points <= points).pop();
-    const newBadge = BADGES.filter((b) => b.points <= newPoints).pop();
+    setPoints((prevPoints) => {
+      const newPoints = prevPoints + amount;
+      const oldBadge = BADGES.filter((b) => b.points <= prevPoints).pop();
+      const newBadge = BADGES.filter((b) => b.points <= newPoints).pop();
 
-    setPoints(newPoints);
+      if (newBadge && newBadge.id !== oldBadge?.id) {
+        celebrate(`🎉 Nouveau badge : ${newBadge.nom} ! 🎉`);
+      } else {
+        celebrate(`+${amount} étoiles ! ⭐`);
+      }
 
-    if (newBadge && newBadge.id !== oldBadge?.id) {
-      celebrate(`🎉 Nouveau badge : ${newBadge.nom} ! 🎉`);
-    } else {
-      celebrate(`+${amount} étoiles ! ⭐`);
-    }
+      return newPoints;
+    });
+
+    setLastPointsGain(amount);
+    setShowPointsPop(true);
+    setTimeout(() => setShowPointsPop(false), 1200);
 
     updateMissionProgress("questions", 1);
     if (matiere === "maths") {
@@ -1003,6 +895,8 @@ Bravo pour ton travail ! 💪`,
             unlockedAvatars={unlockedAvatars}
             unlockedColors={unlockedColors}
             points={points}
+            showPointsPop={showPointsPop}
+            lastPointsGain={lastPointsGain}
             onSelectAvatar={setSelectedAvatar}
             onSelectColor={setSelectedColor}
             onUnlock={handleUnlock}
