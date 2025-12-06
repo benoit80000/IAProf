@@ -24,6 +24,7 @@ import {
   User,
   Palette,
   PenTool,
+  Download,
 } from "lucide-react";
 
 import useLocalStorage from "./hooks/useLocalStorage";
@@ -124,56 +125,105 @@ const StreakDisplay = ({ streak, lastVisit }) => {
   );
 };
 
-const DailyMissionsPanel = ({ missions, onClose }) => {
+const DailyMissionsPanel = ({ missions, completedMissions, onClose }) => {
+  const [activeTab, setActiveTab] = useState("today");
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Target className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold">Missions du Jour</h2>
+            <h2 className="text-xl font-bold">Missions</h2>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="space-y-4">
-          {missions.map((mission) => {
-            const completed = mission.current >= mission.target;
-            return (
-              <div
-                key={mission.id}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  completed ? "border-green-400 bg-green-50" : "border-gray-200 bg-gray-50"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
+        <div className="flex mb-4 border-b border-gray-200">
+          <button
+            className={`flex-1 py-2 text-sm font-semibold ${activeTab === "today" ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"}`}
+            onClick={() => setActiveTab("today")}
+          >
+            Missions du jour
+          </button>
+          <button
+            className={`flex-1 py-2 text-sm font-semibold ${activeTab === "completed" ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"}`}
+            onClick={() => setActiveTab("completed")}
+          >
+            Missions réalisées
+          </button>
+        </div>
+
+        {activeTab === "today" && (
+          <div className="space-y-4">
+            {missions.map((mission) => {
+              const completed = mission.current >= mission.target;
+              return (
+                <div
+                  key={mission.id}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    completed ? "border-green-400 bg-green-50" : "border-gray-200 bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{mission.emoji}</span>
+                      <span className="font-semibold">{mission.title}</span>
+                    </div>
+                    <div className="flex items-center gap-1 bg-yellow-100 px-2 py-1 rounded-full">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      <span className="text-sm font-bold">+{mission.reward}</span>
+                    </div>
+                  </div>
+                  <ProgressBar
+                    current={mission.current}
+                    target={mission.target}
+                    color={completed ? "bg-green-500" : "bg-blue-500"}
+                  />
+                  {completed && (
+                    <div className="flex items-center gap-1 text-green-600 mt-2">
+                      <Check className="w-4 h-4" />
+                      <span className="text-sm font-semibold">Complété !</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {activeTab === "completed" && (
+          <div className="space-y-3">
+            {(!completedMissions || completedMissions.length === 0) && (
+              <p className="text-sm text-gray-500">Aucune mission réalisée pour le moment.</p>
+            )}
+            {completedMissions &&
+              completedMissions.map((mission, index) => (
+                <div
+                  key={mission.id + mission.date + index}
+                  className="p-3 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between"
+                >
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{mission.emoji}</span>
-                    <span className="font-semibold">{mission.title}</span>
+                    <div>
+                      <p className="text-sm font-semibold">{mission.title}</p>
+                      <p className="text-xs text-gray-500">Terminé le {mission.date}</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1 bg-yellow-100 px-2 py-1 rounded-full">
                     <Star className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm font-bold">+{mission.reward}</span>
+                    <span className="text-xs font-bold">+{mission.reward}</span>
                   </div>
                 </div>
-                <ProgressBar current={mission.current} target={mission.target} color={completed ? "bg-green-500" : "bg-blue-500"} />
-                {completed && (
-                  <div className="flex items-center gap-1 text-green-600 mt-2">
-                    <Check className="w-4 h-4" />
-                    <span className="text-sm font-semibold">Complété !</span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
-
 const AvatarSelector = ({
   selectedAvatar,
   selectedColor,
@@ -633,7 +683,7 @@ const PenduGame = ({ matiere, theme, onClose, onWin }) => {
   );
 };
 
-const VraiFauxGame = ({ matiere, theme, onClose, onWin }) => {
+const VraiFauxGame = ({ matiere, theme, onClose, onWin, title = "Vrai ou Faux" }) => {
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -676,7 +726,7 @@ const VraiFauxGame = ({ matiere, theme, onClose, onWin }) => {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-purple-600" />
-            <h2 className="text-lg font-bold">Vrai ou Faux</h2>
+            <h2 className="text-lg font-bold">{title}</h2>
           </div>
           <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-6 h-6" />
@@ -808,11 +858,20 @@ const DrawingCanvas = ({ onClose, onValidate }) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = "mon-dessin.png";
+    link.click();
+  };
+
   const handleValidate = () => {
     onValidate();
   };
 
-  const colors = ["#000000", "#ff0000", "#00a000", "#0000ff", "#ffa500", "#aa00aa"];
+  const colors = ["#000000", "#444444", "#ff0000", "#ff7f00", "#ffff00", "#00a000", "#00bfff", "#0000ff", "#4b0082", "#aa00aa", "#ff1493"];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -879,6 +938,13 @@ const DrawingCanvas = ({ onClose, onValidate }) => {
 
             <div className="flex flex-col gap-2 mt-2">
               <button
+                onClick={handleDownload}
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
+              >
+                <Download className="w-4 h-4" />
+                Enregistrer mon dessin (PNG)
+              </button>
+              <button
                 onClick={clearCanvas}
                 className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
               >
@@ -890,7 +956,7 @@ const DrawingCanvas = ({ onClose, onValidate }) => {
                 className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs sm:text-sm font-semibold"
               >
                 <PenTool className="w-4 h-4" />
-                Valider mon dessin (+étoiles)
+                Valider mon dessin (+étoiles et note)
               </button>
             </div>
           </div>
@@ -902,7 +968,7 @@ const DrawingCanvas = ({ onClose, onValidate }) => {
 
 
 
-const MiniGamesPanel = ({ onClose, onSelectGame }) => {
+const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full">
@@ -916,25 +982,56 @@ const MiniGamesPanel = ({ onClose, onSelectGame }) => {
           </button>
         </div>
 
+        <p className="text-xs text-gray-500 mb-3">
+          Chaque partie coûte <span className="font-semibold">10 étoiles</span>. Certains jeux se débloquent avec ton niveau.
+        </p>
+
         <div className="space-y-3">
-          {MINI_GAMES.map((game) => (
-            <button
-              key={game.id}
-              onClick={() => onSelectGame(game.id)}
-              className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 border-gray-200 hover:border-purple-400 hover:bg-purple-50`}
-            >
-              <div className="text-4xl">{game.emoji}</div>
-              <div>
-                <h3 className="font-bold text-lg">{game.nom}</h3>
-                <p className="text-sm text-gray-600">{game.desc}</p>
-              </div>
-            </button>
-          ))}
+          {MINI_GAMES.map((game) => {
+            const requiredLevel = game.levelRequired || 1;
+            const unlocked = level >= requiredLevel;
+            const enoughPoints = points >= 10;
+            const disabled = !unlocked || !enoughPoints;
+
+            return (
+              <button
+                key={game.id}
+                onClick={() => onSelectGame(game.id)}
+                disabled={disabled}
+                className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${
+                  disabled
+                    ? "border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
+                    : "border-gray-200 hover:border-purple-400 hover:bg-purple-50"
+                }`}
+              >
+                <div className="text-4xl">{game.emoji}</div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg">{game.nom}</h3>
+                  <p className="text-sm text-gray-600">{game.desc}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
+                      <Star className="w-3 h-3" /> 10 étoiles / partie
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                      <Trophy className="w-3 h-3" /> Niveau {requiredLevel}+
+                    </span>
+                    {!unlocked && (
+                      <span className="text-[11px] text-gray-500">Atteins le niveau {requiredLevel} pour débloquer ce jeu.</span>
+                    )}
+                    {unlocked && !enoughPoints && (
+                      <span className="text-[11px] text-red-500">Pas assez d'étoiles pour jouer.</span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 };
+
 
 // ==================== MAIN COMPONENT ====================
 export default function ProfIA() {
@@ -955,6 +1052,7 @@ export default function ProfIA() {
   const [streak, setStreak] = useLocalStorage("profai-streak", 0);
   const [lastVisit, setLastVisit] = useLocalStorage("profai-lastVisit", "");
   const [dailyMissions, setDailyMissions] = useLocalStorage("profai-missions", generateDailyMissions());
+  const [completedMissions, setCompletedMissions] = useLocalStorage("profai-completedMissions", []);
   const [selectedAvatar, setSelectedAvatar] = useLocalStorage("profai-avatar", "🐱");
   const [selectedColor, setSelectedColor] = useLocalStorage("profai-color", "bg-blue-500");
   const [unlockedAvatars, setUnlockedAvatars] = useLocalStorage("profai-unlockedAvatars", ["cat", "dog", "rabbit"]);
@@ -1019,10 +1117,40 @@ export default function ProfIA() {
   };
 
   const updateMissionProgress = (type, amount) => {
-    setDailyMissions((prev) => ({
-      ...prev,
-      missions: prev.missions.map((m) => (m.type === type ? { ...m, current: Math.min(m.current + amount, m.target) } : m)),
-    }));
+    setDailyMissions((prev) => {
+      const updatedMissions = prev.missions.map((m) => {
+        if (m.type !== type) return m;
+        const newCurrent = Math.min(m.current + amount, m.target);
+        return { ...m, current: newCurrent };
+      });
+
+      // Détecter les missions qui viennent d'être complétées
+      updatedMissions.forEach((m, index) => {
+        const prevMission = prev.missions[index];
+        if (m.current >= m.target && prevMission.current < prevMission.target) {
+          setCompletedMissions((prevCompleted) => {
+            if (prevCompleted.find((cm) => cm.id === m.id && cm.date === prev.date)) {
+              return prevCompleted;
+            }
+            return [
+              ...prevCompleted,
+              {
+                id: m.id,
+                title: m.title,
+                reward: m.reward,
+                emoji: m.emoji,
+                date: prev.date,
+              },
+            ];
+          });
+        }
+      });
+
+      return {
+        ...prev,
+        missions: updatedMissions,
+      };
+    });
   };
 
   const addPoints = (amount) => {
@@ -1069,6 +1197,26 @@ export default function ProfIA() {
   const getCurrentBadge = () => BADGES.filter((b) => b.points <= points).pop() || BADGES[0];
   const getNextBadge = () => BADGES.find((b) => b.points > points);
 
+  const getLevel = () => {
+    if (points >= 10000) return 10;
+    if (points >= 7500) return 9;
+    if (points >= 5000) return 8;
+    if (points >= 3000) return 7;
+    if (points >= 2000) return 6;
+    if (points >= 1000) return 5;
+    if (points >= 500) return 4;
+    if (points >= 300) return 3;
+    if (points >= 150) return 2;
+    return 1;
+  };
+
+  const getNextLevelPoints = () => {
+    const level = getLevel();
+    const thresholds = { 1: 150, 2: 300, 3: 500, 4: 1000, 5: 2000, 6: 3000, 7: 5000, 8: 7500, 9: 10000 };
+    return thresholds[level] || null;
+  };
+
+
   const handleUnlock = (type, item) => {
     if (points >= item.cost) {
       if (type === "avatar") {
@@ -1088,6 +1236,25 @@ export default function ProfIA() {
     addPoints(earnedPoints);
     updateMissionProgress("mini-jeux", 1);
     setActiveGame(null);
+  };
+
+  const handleStartGame = (gameId) => {
+    const game = MINI_GAMES.find((g) => g.id === gameId);
+    const requiredLevel = game?.levelRequired || 1;
+    const currentLevel = getLevel();
+
+    if (currentLevel < requiredLevel) {
+      celebrate(`Ce mini-jeu se débloque au niveau ${requiredLevel}. Tu es actuellement niveau ${currentLevel}. 💪`);
+      return;
+    }
+
+    if (points < 10) {
+      celebrate("Tu n'as pas assez d'étoiles pour jouer. Il faut 10 étoiles par partie. ⭐");
+      return;
+    }
+
+    setPoints((prev) => prev - 10);
+    setActiveGame(gameId);
   };
 
   useEffect(() => {
@@ -1349,7 +1516,7 @@ Bravo pour ton travail ! 💪`,
           </div>
         )}
 
-        {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} onClose={() => setShowMissions(false)} />}
+        {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} completedMissions={completedMissions} onClose={() => setShowMissions(false)} />}
         {showBadges && <BadgesPanel points={points} onClose={() => setShowBadges(false)} />}
         {showAvatar && (
           <AvatarSelector
@@ -1369,9 +1536,11 @@ Bravo pour ton travail ! 💪`,
         {showMiniGames && (
           <MiniGamesPanel
             onClose={() => setShowMiniGames(false)}
+            level={getLevel()}
+            points={points}
             onSelectGame={(gameId) => {
               setShowMiniGames(false);
-              setActiveGame(gameId);
+              handleStartGame(gameId);
             }}
           />
         )}
@@ -1397,6 +1566,15 @@ Bravo pour ton travail ! 💪`,
             theme={themeSelectionne}
             onClose={() => setActiveGame(null)}
             onWin={handleGameWin}
+          />
+        )}
+        {activeGame === "quiz-rapide" && (
+          <VraiFauxGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+            title="Quiz Rapide"
           />
         )}
       </div>
@@ -1467,7 +1645,7 @@ Bravo pour ton travail ! 💪`,
       )}
 
       {showBadges && <BadgesPanel points={points} onClose={() => setShowBadges(false)} />}
-      {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} onClose={() => setShowMissions(false)} />}
+      {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} completedMissions={completedMissions} onClose={() => setShowMissions(false)} />}
       {showMiniGames && (
         <MiniGamesPanel
           onClose={() => setShowMiniGames(false)}
@@ -1483,6 +1661,13 @@ Bravo pour ton travail ! 💪`,
           onValidate={() => {
             addPoints(10);
             updateMissionProgress("arts", 1);
+            // Ajoute une note pour le dessin dans le chat
+            const note = 8 + Math.floor(Math.random() * 3); // 8, 9 ou 10
+            const feedbackMessage = {
+              role: "assistant",
+              content: `🎨 Bravo pour ton dessin en palette graphique ! Je te donne la note de ${note}/10 pour ton travail sur les couleurs. Continue comme ça !`,
+            };
+            setMessages((prev) => [...prev, feedbackMessage]);
             setShowDrawing(false);
           }}
         />
@@ -1511,6 +1696,15 @@ Bravo pour ton travail ! 💪`,
             onWin={handleGameWin}
           />
         )}
+        {activeGame === "quiz-rapide" && (
+          <VraiFauxGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+            title="Quiz Rapide"
+          />
+        )}
 
       <div className={`${currentMatiere.color} text-white shadow-lg sticky top-0 z-40`}>
         <div className="max-w-4xl mx-auto p-3 sm:p-4">
@@ -1533,7 +1727,7 @@ Bravo pour ton travail ! 💪`,
               <button onClick={() => setShowMiniGames(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              {matiere === "arts-plastiques" && (
+              {matiere === "arts-plastiques" && themeSelectionne === "palette-graphique" && (
                 <button
                   onClick={() => setShowDrawing(true)}
                   className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
@@ -1544,9 +1738,15 @@ Bravo pour ton travail ! 💪`,
               <button onClick={() => setShowBadges(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <div className="flex items-center gap-1 bg-yellow-400 text-gray-800 px-2 sm:px-3 py-1 rounded-full">
-                <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="font-bold text-xs sm:text-sm">{points}</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-indigo-100 text-indigo-700 px-2 sm:px-3 py-1 rounded-full">
+                  <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="font-bold text-xs sm:text-sm">Niv. {getLevel()}</span>
+                </div>
+                <div className="flex items-center gap-1 bg-yellow-400 text-gray-800 px-2 sm:px-3 py-1 rounded-full">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="font-bold text-xs sm:text-sm">{points}</span>
+                </div>
               </div>
               <button onClick={resetChat} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />

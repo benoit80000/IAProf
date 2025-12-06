@@ -95,7 +95,12 @@ export const BADGES = [
   { id: "expert", nom: "Expert", icon: Zap, points: 200, color: "text-yellow-500", desc: "200 points" },
   { id: "champion", nom: "Champion", icon: Trophy, points: 300, color: "text-orange-500", desc: "300 points" },
   { id: "maitre", nom: "Maître", icon: Crown, points: 500, color: "text-purple-500", desc: "500 points" },
-  { id: "legende", nom: "Légende", icon: Medal, points: 1000, color: "text-pink-500", desc: "1000 points" },
+  { id: "grand-maitre", nom: "Grand Maître", icon: Crown, points: 1000, color: "text-indigo-500", desc: "1000 points" },
+  { id: "etoile", nom: "Étoile montante", icon: Star, points: 2000, color: "text-yellow-400", desc: "2000 points" },
+  { id: "ultra-legende", nom: "Ultra Légende", icon: Medal, points: 3000, color: "text-pink-500", desc: "3000 points" },
+  { id: "mythique", nom: "Mythique", icon: Trophy, points: 5000, color: "text-emerald-500", desc: "5000 points" },
+  { id: "cosmique", nom: "Cosmique", icon: Zap, points: 7500, color: "text-sky-500", desc: "7500 points" },
+  { id: "ultime", nom: "Ultime", icon: Medal, points: 10000, color: "text-red-500", desc: "10000 points" },
 ];
 
 export const AVATARS = [
@@ -123,7 +128,8 @@ export const AVATAR_COLORS = [
 ];
 
 export const MINI_GAMES = [
-  { id: "calcul-mental", nom: "Calcul Mental", emoji: "🧮", desc: "Réponds vite aux calculs !" },
-  { id: "pendu", nom: "Le Pendu", emoji: "📝", desc: "Trouve le mot mystère" },
-  { id: "vrai-faux", nom: "Vrai ou Faux", emoji: "✅", desc: "Teste tes connaissances" },
+  { id: "calcul-mental", nom: "Calcul Mental", emoji: "🧮", desc: "Réponds vite aux calculs !", levelRequired: 1 },
+  { id: "pendu", nom: "Le Pendu", emoji: "📝", desc: "Trouve le mot mystère", levelRequired: 2 },
+  { id: "vrai-faux", nom: "Vrai ou Faux", emoji: "✅", desc: "Teste tes connaissances", levelRequired: 3 },
+  { id: "quiz-rapide", nom: "Quiz Rapide", emoji: "⚡", desc: "Réponds à un quiz éclair", levelRequired: 4 },
 ];
