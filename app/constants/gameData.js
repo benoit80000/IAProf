@@ -114,6 +114,13 @@ export const AVATARS = [
   { id: "robot", emoji: "🤖", nom: "Robot", cost: 250 },
   { id: "alien", emoji: "👽", nom: "Alien", cost: 300 },
   { id: "superhero", emoji: "🦸", nom: "Super-héros", cost: 500 },
+  { id: "wizard", emoji: "🧙‍♂️", nom: "Magicien", cost: 800 },
+  { id: "pharaoh", emoji: "🧑‍🦳", nom: "Pharaon", cost: 1200 },
+  { id: "astronaut", emoji: "🧑‍🚀", nom: "Astronaute", cost: 2000 },
+  { id: "phoenix", emoji: "🔥", nom: "Phénix", cost: 3000 },
+  { id: "griffin", emoji: "🦅", nom: "Griffon", cost: 5000 },
+  { id: "galaxy", emoji: "🌌", nom: "Galaxie", cost: 7500 },
+  { id: "ultimate-crown", emoji: "👑", nom: "Couronne ultime", cost: 10000 },
 ];
 
 export const AVATAR_COLORS = [
@@ -132,4 +139,5 @@ export const MINI_GAMES = [
   { id: "pendu", nom: "Le Pendu", emoji: "📝", desc: "Trouve le mot mystère", levelRequired: 2 },
   { id: "vrai-faux", nom: "Vrai ou Faux", emoji: "✅", desc: "Teste tes connaissances", levelRequired: 3 },
   { id: "quiz-rapide", nom: "Quiz Rapide", emoji: "⚡", desc: "Réponds à un quiz éclair", levelRequired: 4 },
+  { id: "comparaison-maths", nom: "Comparaison de nombres", emoji: "🔢", desc: "Choisis le plus grand nombre", levelRequired: 2 },
 ];

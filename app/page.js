@@ -25,6 +25,7 @@ import {
   Palette,
   PenTool,
   Download,
+  Calculator,
 } from "lucide-react";
 
 import useLocalStorage from "./hooks/useLocalStorage";
@@ -788,6 +789,119 @@ const VraiFauxGame = ({ matiere, theme, onClose, onWin, title = "Vrai ou Faux" }
     </div>
   );
 };
+const MathCompareGame = ({ matiere, theme, onClose, onWin }) => {
+  const [round, setRound] = useState(1);
+  const [score, setScore] = useState(0);
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+  const [finished, setFinished] = useState(false);
+
+  const totalRounds = 5;
+
+  const newRound = () => {
+    let x = Math.floor(Math.random() * 99) + 1;
+    let y = Math.floor(Math.random() * 99) + 1;
+    if (x === y) y = (y % 99) + 1;
+    setA(x);
+    setB(y);
+  };
+
+  useEffect(() => {
+    newRound();
+  }, []);
+
+  const handleChoice = (choice) => {
+    if (finished) return;
+    const correct = a > b ? "a" : "b";
+    const isCorrect = choice === correct;
+
+    if (isCorrect) {
+      setScore((s) => s + 1);
+      setFeedback("Bravo, tu as choisi le plus grand nombre ! ⭐");
+    } else {
+      setFeedback("Ce n'était pas le plus grand nombre, essaie encore !");
+    }
+
+    if (round >= totalRounds) {
+      const finalScore = isCorrect ? score + 1 : score;
+      setFinished(true);
+      // Win condition : au moins 3 bonnes réponses sur 5
+      if (finalScore >= 3) {
+        onWin();
+      }
+    } else {
+      setTimeout(() => {
+        setRound((r) => r + 1);
+        setFeedback(null);
+        newRound();
+      }, 800);
+    }
+  };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <Calculator className="w-5 h-5 text-purple-600" />
+            <h2 className="text-lg font-bold">Comparaison de nombres</h2>
+          </div>
+          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {!finished ? (
+          <>
+            <p className="text-sm text-gray-700 mb-2">
+              Manche {round}/{totalRounds} – Choisis le plus grand nombre :
+            </p>
+            <div className="flex justify-center gap-4 mb-4">
+              <button
+                onClick={() => handleChoice("a")}
+                className="flex-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl py-3 text-xl font-bold"
+              >
+                {a}
+              </button>
+              <button
+                onClick={() => handleChoice("b")}
+                className="flex-1 bg-green-50 hover:bg-green-100 border border-green-200 rounded-2xl py-3 text-xl font-bold"
+              >
+                {b}
+              </button>
+            </div>
+            {feedback && <p className="text-sm text-center text-gray-700 mb-2">{feedback}</p>}
+            <p className="text-xs text-gray-500 text-center">
+              Tu as {score} bonne(s) réponse(s) pour l'instant.
+            </p>
+          </>
+        ) : (
+          <div className="text-center">
+            <p className="text-lg font-bold mb-2">Partie terminée !</p>
+            <p className="text-sm text-gray-700 mb-2">
+              Tu as eu {score}/{totalRounds} bonnes réponses.
+            </p>
+            <p className="text-xs text-gray-500 mb-4">
+              Si tu as au moins 3 bonnes réponses, tu gagnes des étoiles grâce à ce mini-jeu.
+            </p>
+            <button
+              onClick={handleClose}
+              className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
+            >
+              Fermer
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const DrawingCanvas = ({ onClose, onValidate }) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -1232,8 +1346,8 @@ export default function ProfIA() {
     }
   };
 
-  const handleGameWin = (earnedPoints) => {
-    addPoints(earnedPoints);
+  const handleGameWin = () => {
+    addPoints(20);
     updateMissionProgress("mini-jeux", 1);
     setActiveGame(null);
   };
@@ -1577,6 +1691,14 @@ Bravo pour ton travail ! 💪`,
             title="Quiz Rapide"
           />
         )}
+        {activeGame === "comparaison-maths" && (
+          <MathCompareGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
       </div>
     );
   }
@@ -1703,6 +1825,14 @@ Bravo pour ton travail ! 💪`,
             onClose={() => setActiveGame(null)}
             onWin={handleGameWin}
             title="Quiz Rapide"
+          />
+        )}
+        {activeGame === "comparaison-maths" && (
+          <MathCompareGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
           />
         )}
 
