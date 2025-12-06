@@ -22,6 +22,8 @@ import {
   Timer,
   Check,
   User,
+  Palette,
+  PenTool,
 } from "lucide-react";
 
 import useLocalStorage from "./hooks/useLocalStorage";
@@ -36,7 +38,14 @@ const generateDailyMissions = () => {
     missions: [
       { id: "questions-5", title: "Réponds à 5 questions", target: 5, current: 0, reward: 20, type: "questions", emoji: "❓" },
       { id: "maths-3", title: "Fais 3 exercices de maths", target: 3, current: 0, reward: 15, type: "maths", emoji: "🔢" },
+      { id: "francais-3", title: "Travaille 3 questions de français", target: 3, current: 0, reward: 15, type: "francais", emoji: "📝" },
+      { id: "sciences-2", title: "Travaille 2 questions de sciences", target: 2, current: 0, reward: 15, type: "sciences", emoji: "🔬" },
+      { id: "histoire-2", title: "Travaille 2 questions d'histoire-géo", target: 2, current: 0, reward: 15, type: "histoire", emoji: "🌍" },
+      { id: "anglais-2", title: "Travaille 2 questions d'anglais", target: 2, current: 0, reward: 15, type: "anglais", emoji: "🇬🇧" },
       { id: "quiz-1", title: "Termine un quiz photo", target: 1, current: 0, reward: 25, type: "quiz", emoji: "📸" },
+      { id: "mini-jeux-1", title: "Joue à un mini-jeu", target: 1, current: 0, reward: 15, type: "mini-jeux", emoji: "🎮" },
+      { id: "arts-1", title: "Fais un dessin en arts plastiques", target: 1, current: 0, reward: 20, type: "arts", emoji: "🎨" },
+      { id: "earn-30", title: "Gagne 30 étoiles aujourd'hui", target: 30, current: 0, reward: 25, type: "earn-points", emoji: "⭐" },
       { id: "streak", title: "Maintiens ta série", target: 1, current: 0, reward: 10, type: "streak", emoji: "🔥" },
     ],
   };
@@ -729,6 +738,168 @@ const VraiFauxGame = ({ matiere, theme, onClose, onWin }) => {
     </div>
   );
 };
+const DrawingCanvas = ({ onClose, onValidate }) => {
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushColor, setBrushColor] = useState("#000000");
+  const [brushSize, setBrushSize] = useState(4);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = "round";
+  }, []);
+
+  const getPos = (e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    if (e.touches && e.touches[0]) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top,
+      };
+    }
+    return {
+      x: e.nativeEvent.offsetX,
+      y: e.nativeEvent.offsetY,
+    };
+  };
+
+  const startDrawing = (e) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const { x, y } = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.strokeStyle = brushColor;
+    ctx.lineWidth = brushSize;
+    setIsDrawing(true);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const { x, y } = getPos(e);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = (e) => {
+    if (!isDrawing) return;
+    e && e.preventDefault();
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const handleValidate = () => {
+    onValidate();
+  };
+
+  const colors = ["#000000", "#ff0000", "#00a000", "#0000ff", "#ffa500", "#aa00aa"];
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-6 max-w-3xl w-full">
+        <div className="flex justify-between items-center mb-3 sm:mb-4">
+          <div className="flex items-center gap-2">
+            <Palette className="w-5 h-5 text-purple-600" />
+            <h2 className="text-base sm:text-lg font-bold">Atelier de dessin</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <p className="text-xs sm:text-sm text-gray-600 mb-3">
+          Dessine librement pour travailler les couleurs, les mélanges et la palette graphique. 🎨
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 flex justify-center items-center">
+            <canvas
+              ref={canvasRef}
+              width={700}
+              height={400}
+              className="border border-gray-300 rounded-xl shadow-inner touch-none bg-white"
+              onMouseDown={startDrawing}
+              onMouseMove={draw}
+              onMouseUp={stopDrawing}
+              onMouseLeave={stopDrawing}
+              onTouchStart={startDrawing}
+              onTouchMove={draw}
+              onTouchEnd={stopDrawing}
+            />
+          </div>
+
+          <div className="w-full sm:w-48 flex flex-col gap-3">
+            <div>
+              <p className="text-xs sm:text-sm font-semibold mb-1">Couleur du pinceau</p>
+              <div className="flex flex-wrap gap-2">
+                {colors.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setBrushColor(c)}
+                    className={`w-7 h-7 rounded-full border-2 ${
+                      brushColor === c ? "border-purple-500" : "border-transparent"
+                    }`}
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs sm:text-sm font-semibold mb-1">Taille du pinceau</p>
+              <input
+                type="range"
+                min="2"
+                max="16"
+                value={brushSize}
+                onChange={(e) => setBrushSize(parseInt(e.target.value, 10))}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2 mt-2">
+              <button
+                onClick={clearCanvas}
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                Effacer le dessin
+              </button>
+              <button
+                onClick={handleValidate}
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs sm:text-sm font-semibold"
+              >
+                <PenTool className="w-4 h-4" />
+                Valider mon dessin (+étoiles)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 
 const MiniGamesPanel = ({ onClose, onSelectGame }) => {
@@ -796,6 +967,7 @@ export default function ProfIA() {
   const [showMissions, setShowMissions] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
   const [showMiniGames, setShowMiniGames] = useState(false);
+  const [showDrawing, setShowDrawing] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
   const [lastPointsGain, setLastPointsGain] = useState(0);
   const [showPointsPop, setShowPointsPop] = useState(false);
@@ -872,9 +1044,25 @@ export default function ProfIA() {
     setShowPointsPop(true);
     setTimeout(() => setShowPointsPop(false), 1200);
 
+    // Missions générales
     updateMissionProgress("questions", 1);
+    updateMissionProgress("earn-points", amount);
+
+    // Missions par matière
     if (matiere === "maths") {
       updateMissionProgress("maths", 1);
+    }
+    if (matiere === "francais" || matiere === "dictee") {
+      updateMissionProgress("francais", 1);
+    }
+    if (matiere === "sciences") {
+      updateMissionProgress("sciences", 1);
+    }
+    if (matiere === "histoire" || matiere === "geographie") {
+      updateMissionProgress("histoire", 1);
+    }
+    if (matiere === "anglais") {
+      updateMissionProgress("anglais", 1);
     }
   };
 
@@ -898,6 +1086,7 @@ export default function ProfIA() {
 
   const handleGameWin = (earnedPoints) => {
     addPoints(earnedPoints);
+    updateMissionProgress("mini-jeux", 1);
     setActiveGame(null);
   };
 
@@ -1288,6 +1477,16 @@ Bravo pour ton travail ! 💪`,
           }}
         />
       )}
+      {showDrawing && (
+        <DrawingCanvas
+          onClose={() => setShowDrawing(false)}
+          onValidate={() => {
+            addPoints(10);
+            updateMissionProgress("arts", 1);
+            setShowDrawing(false);
+          }}
+        />
+      )}
       {activeGame === "calcul-mental" && (
           <CalculMentalGame
             matiere={matiere}
@@ -1334,6 +1533,14 @@ Bravo pour ton travail ! 💪`,
               <button onClick={() => setShowMiniGames(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
+              {matiere === "arts-plastiques" && (
+                <button
+                  onClick={() => setShowDrawing(true)}
+                  className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
+                >
+                  <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              )}
               <button onClick={() => setShowBadges(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
