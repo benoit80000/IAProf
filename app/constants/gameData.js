@@ -72,6 +72,11 @@ export const THEMES_PAR_MATIERE = {
     { id: "regions", nom: "Régions", emoji: "🇫🇷" },
     { id: "monde", nom: "Le monde", emoji: "🌍" },
   ],
+  "arts-plastiques": [
+    { id: "couleurs", nom: "Couleurs et mélanges", emoji: "🎨" },
+    { id: "palette-graphique", nom: "Palette graphique", emoji: "🖌️" },
+    { id: "formes-composition", nom: "Formes et composition", emoji: "🟦" },
+  ],
   emc: [
     { id: "vivre-ensemble", nom: "Vivre ensemble", emoji: "👥" },
     { id: "regles", nom: "Règles de vie", emoji: "📋" },

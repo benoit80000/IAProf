@@ -307,7 +307,7 @@ const BadgesPanel = ({ points, onClose }) => {
   );
 };
 
-const CalculMentalGame = ({ onClose, onWin }) => {
+const CalculMentalGame = ({ matiere, theme, onClose, onWin }) => {
   const [score, setScore] = useState(0);
   const [question, setQuestion] = useState(null);
   const [userAnswer, setUserAnswer] = useState("");
@@ -449,6 +449,287 @@ const CalculMentalGame = ({ onClose, onWin }) => {
     </div>
   );
 };
+const WORDS_BY_SUBJECT = {
+  francais: ["verbe", "sujet", "phrase", "adjectif", "conjugaison"],
+  dictee: ["orthographe", "accord", "genre", "nombre", "ponctuation"],
+  maths: ["fraction", "addition", "soustraction", "rectangle", "triangle"],
+  sciences: ["plante", "respiration", "planete", "soleil", "energie"],
+  histoire: ["prehistoire", "antiquite", "royaume", "chateau", "empire"],
+  geographie: ["carte", "pays", "continent", "ocean", "ville"],
+  anglais: ["teacher", "school", "lesson", "english", "family"],
+  "arts-plastiques": ["couleur", "peinture", "dessin", "artiste"],
+  "education-musicale": ["musique", "rythme", "chant", "instrument"],
+  "histoire-des-arts": ["tableau", "sculpture", "museum"],
+  eps: ["sport", "course", "saut", "jeu"],
+  emc: ["respect", "regle", "droit", "solidarite"],
+  general: ["ecole", "eleve", "cahier", "professeur", "classe"],
+};
+
+const STATEMENTS_BY_SUBJECT = {
+  maths: [
+    { text: "5 + 3 = 8", isTrue: true },
+    { text: "10 est un nombre impair.", isTrue: false },
+    { text: "Un triangle a 3 côtés.", isTrue: true },
+    { text: "2 × 6 = 14.", isTrue: false },
+  ],
+  francais: [
+    { text: "Une phrase commence toujours par une majuscule.", isTrue: true },
+    { text: "Le verbe est toujours au début de la phrase.", isTrue: false },
+    { text: "On met un point à la fin d’une phrase.", isTrue: true },
+  ],
+  dictee: [
+    { text: "On entend toujours toutes les lettres d’un mot.", isTrue: false },
+    { text: "On met un s au pluriel des noms en général.", isTrue: true },
+  ],
+  sciences: [
+    { text: "La Terre tourne autour du Soleil.", isTrue: true },
+    { text: "Les poissons respirent avec des poumons.", isTrue: false },
+  ],
+  histoire: [
+    { text: "Les hommes préhistoriques vivaient dans des grottes.", isTrue: true },
+    { text: "L’Antiquité vient après le Moyen Âge.", isTrue: false },
+  ],
+  anglais: [
+    { text: "'Hello' veut dire 'Bonjour'.", isTrue: true },
+    { text: "'Dog' veut dire 'Chat'.", isTrue: false },
+  ],
+  general: [
+    { text: "À l’école, on doit respecter les autres.", isTrue: true },
+    { text: "On peut crier tout le temps en classe.", isTrue: false },
+  ],
+};
+
+const getWordsForSubject = (matiere) => {
+  return WORDS_BY_SUBJECT[matiere] || WORDS_BY_SUBJECT.general;
+};
+
+const getStatementsForSubject = (matiere) => {
+  return STATEMENTS_BY_SUBJECT[matiere] || STATEMENTS_BY_SUBJECT.general;
+};
+
+const PenduGame = ({ matiere, theme, onClose, onWin }) => {
+  const [word, setWord] = useState("");
+  const [guessedLetters, setGuessedLetters] = useState([]);
+  const [attemptsLeft, setAttemptsLeft] = useState(8);
+  const [gameOver, setGameOver] = useState(false);
+  const [won, setWon] = useState(false);
+
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  const initGame = () => {
+    const words = getWordsForSubject(matiere);
+    const random = words[Math.floor(Math.random() * words.length)] || "ecole";
+    setWord(random.toUpperCase());
+    setGuessedLetters([]);
+    setAttemptsLeft(8);
+    setGameOver(false);
+    setWon(false);
+  };
+
+  useEffect(() => {
+    initGame();
+  }, [matiere, theme]);
+
+  const handleGuess = (letter) => {
+    if (gameOver || guessedLetters.includes(letter)) return;
+    const newGuessed = [...guessedLetters, letter];
+    setGuessedLetters(newGuessed);
+
+    if (!word.includes(letter)) {
+      const newAttempts = attemptsLeft - 1;
+      setAttemptsLeft(newAttempts);
+      if (newAttempts <= 0) {
+        setGameOver(true);
+        setWon(false);
+      }
+    } else {
+      const allRevealed = word
+        .split("")
+        .every((l) => l === " " || newGuessed.includes(l));
+      if (allRevealed) {
+        setGameOver(true);
+        setWon(true);
+        onWin(25);
+      }
+    }
+  };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  const maskedWord = word
+    .split("")
+    .map((l) => (l === " " ? " " : guessedLetters.includes(l) ? l : "_"))
+    .join(" ");
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-purple-600" />
+            <h2 className="text-lg font-bold">Jeu du pendu</h2>
+          </div>
+          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <p className="text-xs text-gray-500 mb-2">
+          Mots liés à : <span className="font-semibold">{matiere || "ta matière"}</span>
+        </p>
+
+        <div className="flex flex-col items-center mb-4">
+          <div className="text-2xl tracking-widest font-mono mb-2">{maskedWord}</div>
+          <p className="text-sm text-gray-600">Essais restants : {attemptsLeft}</p>
+        </div>
+
+        <div className="grid grid-cols-7 gap-1 mb-4">
+          {alphabet.map((letter) => {
+            const disabled = guessedLetters.includes(letter) || gameOver;
+            return (
+              <button
+                key={letter}
+                onClick={() => handleGuess(letter)}
+                disabled={disabled}
+                className={`text-xs py-1 rounded-md border ${
+                  disabled
+                    ? "bg-gray-200 text-gray-400 border-gray-200"
+                    : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
+                }`}
+              >
+                {letter}
+              </button>
+            );
+          })}
+        </div>
+
+        {gameOver && (
+          <div className={`p-3 rounded-xl text-center mb-3 ${won ? "bg-green-50" : "bg-red-50"}`}>
+            <p className="text-sm">
+              {won ? "Bravo, tu as trouvé le mot ! ⭐" : `Dommage, le mot était : ${word}`}
+            </p>
+            {won && <p className="text-xs text-gray-600 mt-1">+25 étoiles gagnées 🎉</p>}
+          </div>
+        )}
+
+        {!gameOver && (
+          <p className="text-xs text-gray-500 text-center">
+            Trouve le mot avant de perdre tous tes essais !
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const VraiFauxGame = ({ matiere, theme, onClose, onWin }) => {
+  const [index, setIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const statements = getStatementsForSubject(matiere);
+  const totalQuestions = Math.min(10, statements.length);
+
+  const current = statements[index % statements.length];
+
+  const answer = (value) => {
+    if (finished) return;
+    const isCorrect = value === current.isTrue;
+    if (isCorrect) {
+      setScore((s) => s + 1);
+      setFeedback("Bravo, c'est vrai ! ⭐");
+    } else {
+      setFeedback(current.isTrue ? "C'était vrai !" : "C'était faux !");
+    }
+
+    if (index + 1 >= totalQuestions) {
+      setFinished(true);
+      const pts = (score + (isCorrect ? 1 : 0)) * 3;
+      onWin(pts);
+    } else {
+      setTimeout(() => {
+        setIndex((i) => i + 1);
+        setFeedback(null);
+      }, 800);
+    }
+  };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-purple-600" />
+            <h2 className="text-lg font-bold">Vrai ou Faux</h2>
+          </div>
+          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <p className="text-xs text-gray-500 mb-2">
+          Questions liées à : <span className="font-semibold">{matiere || "ta matière"}</span>
+        </p>
+
+        {!finished ? (
+          <>
+            <p className="text-sm text-gray-700 mb-4">
+              Question {index + 1}/{totalQuestions}
+            </p>
+            <div className="p-4 bg-purple-50 rounded-2xl mb-4">
+              <p className="text-base text-gray-800">{current.text}</p>
+            </div>
+
+            <div className="flex gap-3 mb-4">
+              <button
+                onClick={() => answer(true)}
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-xl"
+              >
+                Vrai
+              </button>
+              <button
+                onClick={() => answer(false)}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl"
+              >
+                Faux
+              </button>
+            </div>
+
+            {feedback && (
+              <p className="text-sm text-center text-gray-700 mb-2">{feedback}</p>
+            )}
+
+            <p className="text-xs text-gray-500 text-center">
+              Réponds le mieux possible, chaque bonne réponse te donnera des étoiles !
+            </p>
+          </>
+        ) : (
+          <div className="text-center">
+            <p className="text-lg font-bold mb-2">Quiz terminé ! 🎉</p>
+            <p className="text-sm text-gray-700 mb-2">
+              Tu as eu {score}/{totalQuestions} bonnes réponses.
+            </p>
+            <p className="text-xs text-gray-500 mb-4">Tes étoiles ont été ajoutées à ton compte.</p>
+            <button
+              onClick={handleClose}
+              className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
+            >
+              Fermer
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 
 const MiniGamesPanel = ({ onClose, onSelectGame }) => {
   return (
@@ -469,18 +750,12 @@ const MiniGamesPanel = ({ onClose, onSelectGame }) => {
             <button
               key={game.id}
               onClick={() => onSelectGame(game.id)}
-              disabled={game.id !== "calcul-mental"}
-              className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${
-                game.id === "calcul-mental"
-                  ? "border-gray-200 hover:border-purple-400 hover:bg-purple-50"
-                  : "border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed"
-              }`}
+              className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 border-gray-200 hover:border-purple-400 hover:bg-purple-50`}
             >
               <div className="text-4xl">{game.emoji}</div>
               <div>
                 <h3 className="font-bold text-lg">{game.nom}</h3>
                 <p className="text-sm text-gray-600">{game.desc}</p>
-                {game.id !== "calcul-mental" && <p className="text-xs text-orange-500 mt-1">🔜 Bientôt disponible</p>}
               </div>
             </button>
           ))}
@@ -608,7 +883,6 @@ export default function ProfIA() {
 
   const handleUnlock = (type, item) => {
     if (points >= item.cost) {
-      setPoints(points - item.cost);
       if (type === "avatar") {
         setUnlockedAvatars([...unlockedAvatars, item.id]);
         setSelectedAvatar(item.emoji);
@@ -912,7 +1186,30 @@ Bravo pour ton travail ! 💪`,
             }}
           />
         )}
-        {activeGame === "calcul-mental" && <CalculMentalGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />}
+        {activeGame === "calcul-mental" && (
+          <CalculMentalGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
+        {activeGame === "pendu" && (
+          <PenduGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
+        {activeGame === "vrai-faux" && (
+          <VraiFauxGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
       </div>
     );
   }
@@ -991,7 +1288,30 @@ Bravo pour ton travail ! 💪`,
           }}
         />
       )}
-      {activeGame === "calcul-mental" && <CalculMentalGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />}
+      {activeGame === "calcul-mental" && (
+          <CalculMentalGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
+        {activeGame === "pendu" && (
+          <PenduGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
+        {activeGame === "vrai-faux" && (
+          <VraiFauxGame
+            matiere={matiere}
+            theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
 
       <div className={`${currentMatiere.color} text-white shadow-lg sticky top-0 z-40`}>
         <div className="max-w-4xl mx-auto p-3 sm:p-4">
