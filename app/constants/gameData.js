@@ -141,3 +141,70 @@ export const MINI_GAMES = [
   { id: "quiz-rapide", nom: "Quiz Rapide", emoji: "⚡", desc: "Réponds à un quiz éclair", levelRequired: 4 },
   { id: "comparaison-maths", nom: "Comparaison de nombres", emoji: "🔢", desc: "Choisis le plus grand nombre", levelRequired: 2 },
 ];
+
+export const LEVEL_THRESHOLDS = {
+  1: 0,
+  2: 150,
+  3: 300,
+  4: 500,
+  5: 1000,
+  6: 2000,
+  7: 3000,
+  8: 5000,
+  9: 7500,
+  10: 10000,
+};
+
+export const SKILL_TREE = {
+  maths: [
+    { id: "addition", nom: "Addition" },
+    { id: "soustraction", nom: "Soustraction" },
+    { id: "multiplication", nom: "Multiplication" },
+    { id: "problemes", nom: "Problèmes" },
+    { id: "geometrie", nom: "Géométrie" },
+    { id: "fractions", nom: "Fractions" },
+  ],
+  francais: [
+    { id: "conjugaison", nom: "Conjugaison" },
+    { id: "grammaire", nom: "Grammaire" },
+    { id: "orthographe", nom: "Orthographe" },
+    { id: "lecture", nom: "Lecture" },
+    { id: "redaction", nom: "Rédaction" },
+  ],
+  anglais: [
+    { id: "vocabulaire", nom: "Vocabulaire" },
+    { id: "phrases-simples", nom: "Phrases simples" },
+    { id: "compréhension", nom: "Compréhension" },
+  ],
+  histoire: [
+    { id: "chronologie", nom: "Chronologie" },
+    { id: "personnages", nom: "Personnages clés" },
+  ],
+  sciences: [
+    { id: "corps-humain", nom: "Corps humain" },
+    { id: "plantes", nom: "Plantes" },
+    { id: "energie", nom: "Énergie" },
+  ],
+};
+
+export const UI_THEMES = [
+  { id: "standard", nom: "Classique", className: "from-purple-500 via-indigo-500 to-blue-500" },
+  { id: "foret", nom: "Forêt magique", className: "from-emerald-500 via-lime-500 to-green-600" },
+  { id: "espace", nom: "Espace", className: "from-gray-900 via-purple-900 to-indigo-800" },
+  { id: "ocean", nom: "Océan", className: "from-sky-500 via-cyan-500 to-blue-700" },
+  { id: "egypte", nom: "Égypte ancienne", className: "from-yellow-500 via-amber-500 to-orange-600" },
+];
+
+export const AVATAR_FRAMES = [
+  { id: "none", nom: "Aucun cadre", className: "ring-0" },
+  { id: "or", nom: "Cadre or", className: "ring-2 ring-yellow-400" },
+  { id: "epique", nom: "Cadre épique", className: "ring-2 ring-purple-400" },
+  { id: "galactique", nom: "Cadre galactique", className: "ring-2 ring-sky-400" },
+];
+
+export const HONOR_EMOJIS = [
+  { id: "none", nom: "Aucun", emoji: "" },
+  { id: "etoile", nom: "Étoile d'honneur", emoji: "⭐" },
+  { id: "couronne", nom: "Couronne", emoji: "👑" },
+  { id: "feu", nom: "Flamme", emoji: "🔥" },
+];

@@ -1163,6 +1163,7 @@ export default function ProfIA() {
 
   // Persisted state
   const [points, setPoints] = useLocalStorage("profai-points", 0);
+  const [xp, setXp] = useLocalStorage("profai-xp", 0);
   const [streak, setStreak] = useLocalStorage("profai-streak", 0);
   const [lastVisit, setLastVisit] = useLocalStorage("profai-lastVisit", "");
   const [dailyMissions, setDailyMissions] = useLocalStorage("profai-missions", generateDailyMissions());
@@ -1268,19 +1269,62 @@ export default function ProfIA() {
   };
 
   const addPoints = (amount) => {
-    setPoints((prevPoints) => {
-      const newPoints = prevPoints + amount;
-      const oldBadge = BADGES.filter((b) => b.points <= prevPoints).pop();
-      const newBadge = BADGES.filter((b) => b.points <= newPoints).pop();
+    // XP : ne diminue jamais, sert aux niveaux et badges
+    setXp((prevXp) => {
+      const newXp = prevXp + amount;
+
+      const thresholds = {
+        1: 0,
+        2: 150,
+        3: 300,
+        4: 500,
+        5: 1000,
+        6: 2000,
+        7: 3000,
+        8: 5000,
+        9: 7500,
+        10: 10000,
+        11: 12000,
+        12: 14000,
+        13: 16000,
+        14: 18000,
+        15: 20000,
+        16: 23000,
+        17: 26000,
+        18: 29000,
+        19: 32000,
+        20: 35000,
+      };
+
+      const getLevelFromXp = (xpValue) => {
+        let lvl = 1;
+        for (let i = 1; i <= 20; i++) {
+          if (xpValue >= thresholds[i]) {
+            lvl = i;
+          }
+        }
+        return lvl;
+      };
+
+      const oldBadge = BADGES.filter((b) => b.points <= prevXp).pop();
+      const newBadge = BADGES.filter((b) => b.points <= newXp).pop();
+
+      const oldLevel = getLevelFromXp(prevXp);
+      const newLevel = getLevelFromXp(newXp);
 
       if (newBadge && newBadge.id !== oldBadge?.id) {
         celebrate(`🎉 Nouveau badge : ${newBadge.nom} ! 🎉`);
+      } else if (newLevel > oldLevel) {
+        celebrate(`🌟 Niveau ${newLevel} atteint ! 🌟`);
       } else {
-        celebrate(`+${amount} étoiles ! ⭐`);
+        celebrate(`+${amount} XP ! ⭐`);
       }
 
-      return newPoints;
+      return newXp;
     });
+
+    // Étoiles : monnaie qui peut augmenter ou diminuer
+    setPoints((prevPoints) => prevPoints + amount);
 
     setLastPointsGain(amount);
     setShowPointsPop(true);
@@ -1308,26 +1352,67 @@ export default function ProfIA() {
     }
   };
 
-  const getCurrentBadge = () => BADGES.filter((b) => b.points <= points).pop() || BADGES[0];
-  const getNextBadge = () => BADGES.find((b) => b.points > points);
+  const getCurrentBadge = () => BADGES.filter((b) => b.points <= xp).pop() || BADGES[0];
+  const getNextBadge = () => BADGES.find((b) => b.points > xp);
 
   const getLevel = () => {
-    if (points >= 10000) return 10;
-    if (points >= 7500) return 9;
-    if (points >= 5000) return 8;
-    if (points >= 3000) return 7;
-    if (points >= 2000) return 6;
-    if (points >= 1000) return 5;
-    if (points >= 500) return 4;
-    if (points >= 300) return 3;
-    if (points >= 150) return 2;
-    return 1;
+    const thresholds = {
+      1: 0,
+      2: 150,
+      3: 300,
+      4: 500,
+      5: 1000,
+      6: 2000,
+      7: 3000,
+      8: 5000,
+      9: 7500,
+      10: 10000,
+      11: 12000,
+      12: 14000,
+      13: 16000,
+      14: 18000,
+      15: 20000,
+      16: 23000,
+      17: 26000,
+      18: 29000,
+      19: 32000,
+      20: 35000,
+    };
+    let lvl = 1;
+    for (let i = 1; i <= 20; i++) {
+      if (xp >= thresholds[i]) {
+        lvl = i;
+      }
+    }
+    return lvl;
   };
 
   const getNextLevelPoints = () => {
     const level = getLevel();
-    const thresholds = { 1: 150, 2: 300, 3: 500, 4: 1000, 5: 2000, 6: 3000, 7: 5000, 8: 7500, 9: 10000 };
-    return thresholds[level] || null;
+    if (level >= 20) return null;
+    const thresholds = {
+      1: 0,
+      2: 150,
+      3: 300,
+      4: 500,
+      5: 1000,
+      6: 2000,
+      7: 3000,
+      8: 5000,
+      9: 7500,
+      10: 10000,
+      11: 12000,
+      12: 14000,
+      13: 16000,
+      14: 18000,
+      15: 20000,
+      16: 23000,
+      17: 26000,
+      18: 29000,
+      19: 32000,
+      20: 35000,
+    };
+    return thresholds[level + 1] ?? null;
   };
 
 
@@ -1869,9 +1954,21 @@ Bravo pour ton travail ! 💪`,
                 <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-indigo-100 text-indigo-700 px-2 sm:px-3 py-1 rounded-full">
-                  <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="font-bold text-xs sm:text-sm">Niv. {getLevel()}</span>
+                <div className="flex flex-col items-start gap-1">
+                  <div className="flex items-center gap-1 bg-indigo-100 text-indigo-700 px-2 sm:px-3 py-1 rounded-full">
+                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="font-bold text-xs sm:text-sm">Niv. {getLevel()}</span>
+                  </div>
+                  <div className="w-20 sm:w-24 h-1.5 bg-indigo-200 rounded-full overflow-hidden">
+                    {(() => {
+                      const target = getNextLevelPoints();
+                      if (!target) {
+                        return <div className="h-full w-full bg-indigo-500" />;
+                      }
+                      const percent = Math.min(100, Math.round((xp / target) * 100));
+                      return <div className="h-full bg-indigo-500" style={{ width: `${percent}%` }} />;
+                    })()}
+                  </div>
                 </div>
                 <div className="flex items-center gap-1 bg-yellow-400 text-gray-800 px-2 sm:px-3 py-1 rounded-full">
                   <Star className="w-3 h-3 sm:w-4 sm:h-4" />
