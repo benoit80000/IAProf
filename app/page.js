@@ -33,59 +33,6 @@ import useLocalStorage from "./hooks/useLocalStorage";
 import { MATIERES, THEMES_PAR_MATIERE, BADGES, AVATARS, AVATAR_COLORS, MINI_GAMES } from "./constants/gameData";
 
 // ==================== CONSTANTS ====================
-const UI_THEMES = {
-  default: {
-    id: "default",
-    name: "Classique",
-    emoji: "✨",
-    description: "Interface claire et colorée.",
-    bgHome: "bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100",
-    bgChat: "bg-gradient-to-br from-blue-50 to-purple-50",
-  },
-  espace: {
-    id: "espace",
-    name: "Espace",
-    emoji: "🚀",
-    description: "Un ciel étoilé pour voyager dans les maths et le français.",
-    bgHome: "bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900",
-    bgChat: "bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900",
-  },
-  foret: {
-    id: "foret",
-    name: "Forêt magique",
-    emoji: "🌳",
-    description: "Une forêt enchantée pour réviser au calme.",
-    bgHome: "bg-gradient-to-br from-emerald-100 via-lime-100 to-amber-100",
-    bgChat: "bg-gradient-to-br from-emerald-50 to-lime-100",
-  },
-  ocean: {
-    id: "ocean",
-    name: "Océan",
-    emoji: "🐬",
-    description: "Une mer douce pour travailler sereinement.",
-    bgHome: "bg-gradient-to-br from-sky-100 via-cyan-100 to-blue-100",
-    bgChat: "bg-gradient-to-br from-sky-50 to-blue-100",
-  },
-  egypte: {
-    id: "egypte",
-    name: "Égypte antique",
-    emoji: "🏺",
-    description: "Un voyage dans l'histoire et les nombres.",
-    bgHome: "bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-100",
-    bgChat: "bg-gradient-to-br from-amber-50 to-yellow-100",
-  },
-};
-
-const UI_THEME_LIST = [
-  { id: "default", name: "Classique", emoji: "✨", minLevel: 1, cost: 0 },
-  { id: "espace", name: "Espace", emoji: "🚀", minLevel: 3, cost: 150 },
-  { id: "foret", name: "Forêt magique", emoji: "🌳", minLevel: 5, cost: 300 },
-  { id: "ocean", name: "Océan", emoji: "🐬", minLevel: 7, cost: 450 },
-  { id: "egypte", name: "Égypte antique", emoji: "🏺", minLevel: 10, cost: 600 },
-];
-
-const getThemeConfig = (id) => UI_THEMES[id] || UI_THEMES.default;
-
 // ==================== HOOKS ====================
 const generateDailyMissions = () => {
   const today = new Date().toDateString();
@@ -382,119 +329,6 @@ const AvatarSelector = ({
   );
 };
 
-
-const ThemeSelector = ({ selectedTheme, onSelectTheme, level, points, onClose }) => {
-  const themeConfig = getThemeConfig(selectedTheme);
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2">
-            <Palette className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold">Thèmes visuels</h2>
-          </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <p className="text-sm text-gray-600 mb-4">
-          Choisis l&apos;ambiance de ton application. Certains thèmes se débloquent avec le niveau ou les étoiles.
-        </p>
-
-        <div className="grid grid-cols-1 gap-3">
-          {UI_THEME_LIST.map((t) => {
-            const unlockedByLevel = level >= t.minLevel;
-            const canAfford = points >= t.cost;
-            const isSelected = selectedTheme === t.id;
-            const locked = !unlockedByLevel && t.cost > 0;
-
-            return (
-              <button
-                key={t.id}
-                disabled={locked}
-                onClick={() => {
-                  if (locked) return;
-                  if (!unlockedByLevel || (t.cost > 0 && !canAfford)) {
-                    alert("Ce thème demande un niveau ou des étoiles supplémentaires.");
-                    return;
-                  }
-                  onSelectTheme(t.id);
-                  onClose();
-                }}
-                className={`w-full p-4 rounded-2xl border-2 text-left transition-all flex gap-3 items-center ${
-                  isSelected
-                    ? "border-purple-500 bg-purple-50"
-                    : locked
-                    ? "border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
-                    : "border-gray-200 hover:border-purple-400 hover:bg-purple-50"
-                }`}
-              >
-                <div className="text-3xl">{t.emoji}</div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg flex items-center gap-2">
-                    {t.name}
-                    {isSelected && (
-                      <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">
-                        Actif
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-xs text-gray-600">
-                    {UI_THEMES[t.id]?.description}
-                  </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
-                      <Trophy className="w-3 h-3" /> Niveau {t.minLevel}+
-                    </span>
-                    {t.cost > 0 && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
-                        <Star className="w-3 h-3" /> {t.cost} étoiles
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Companion = ({ level }) => {
-  let emoji = "🐣";
-  let title = "Nouveau compagnon";
-  let message = "Bienvenue ! Choisis une matière pour commencer à jouer et apprendre. 😊";
-
-  if (level >= 5 && level < 10) {
-    emoji = "🦊";
-    title = "Compagnon motivé";
-    message = "Tu progresses bien ! Continue à faire des missions et des mini-jeux. 💪";
-  } else if (level >= 10 && level < 15) {
-    emoji = "🐲";
-    title = "Compagnon puissant";
-    message = "Wow, ton niveau est impressionnant ! Tu es proche des niveaux légendaires. 🌟";
-  } else if (level >= 15) {
-    emoji = "🦄";
-    title = "Compagnon légendaire";
-    message = "Tu es un véritable maître des révisions. Tout est possible pour toi ! ✨";
-  }
-
-  return (
-    <div className="hidden sm:flex fixed bottom-24 right-4 z-40">
-      <div className="bg-white/90 border border-purple-200 rounded-3xl shadow-xl px-4 py-3 flex items-center gap-3 max-w-xs">
-        <div className="text-3xl">{emoji}</div>
-        <div>
-          <p className="text-xs font-bold text-purple-700 mb-1">{title}</p>
-          <p className="text-[11px] text-gray-700 leading-snug">{message}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
 const BadgesPanel = ({ points, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -1669,7 +1503,6 @@ export default function ProfIA() {
   const [selectedColor, setSelectedColor] = useLocalStorage("profai-color", "bg-blue-500");
   const [unlockedAvatars, setUnlockedAvatars] = useLocalStorage("profai-unlockedAvatars", ["cat", "dog", "rabbit"]);
   const [unlockedColors, setUnlockedColors] = useLocalStorage("profai-unlockedColors", ["blue", "purple"]);
-  const [selectedTheme, setSelectedTheme] = useLocalStorage("profai-theme", "default");
 
   // UI state
   const [showCelebration, setShowCelebration] = useState(false);
@@ -1680,14 +1513,10 @@ export default function ProfIA() {
   const [showMiniGames, setShowMiniGames] = useState(false);
   const [showDrawing, setShowDrawing] = useState(false);
   const [showCodePanel, setShowCodePanel] = useState(false);
-  const [showPinPopup, setShowPinPopup] = useState(false);
-  const [pinValue, setPinValue] = useState("");
-  const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
   const [lastPointsGain, setLastPointsGain] = useState(0);
   const [showPointsPop, setShowPointsPop] = useState(false);
 
-  const MASTER_PIN = "12345";
 
   // Refs
   const fileInputRef = useRef(null);
@@ -2126,13 +1955,11 @@ Bravo pour ton travail ! 💪`,
 
   const currentBadge = getCurrentBadge();
   const nextBadge = getNextBadge();
-  const themeConfig = getThemeConfig(selectedTheme);
-
 
   // ==================== RENDER: Subject Selection ====================
   if (!matiere) {
     return (
-      <div className={`min-h-screen ${themeConfig.bgHome} p-4 sm:p-6`}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-6 mt-4">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -2175,10 +2002,6 @@ Bravo pour ton travail ! 💪`,
               <button onClick={() => setShowMiniGames(true)} className="flex-1 bg-green-100 hover:bg-green-200 rounded-xl p-3 transition-colors">
                 <Gamepad2 className="w-5 h-5 mx-auto text-green-600 mb-1" />
                 <span className="text-xs font-semibold block">Jeux</span>
-              </button>
-              <button onClick={() => setShowThemeSelector(true)} className="flex-1 bg-indigo-100 hover:bg-indigo-200 rounded-xl p-3 transition-colors">
-                <Palette className="w-5 h-5 mx-auto text-indigo-600 mb-1" />
-                <span className="text-xs font-semibold block">Thèmes</span>
               </button>
             </div>
           </div>
@@ -2259,16 +2082,6 @@ Bravo pour ton travail ! 💪`,
             onRemovePoints={(amount) => setPoints((p) => Math.max(0, p - amount))}
           />
         )}
-        {showThemeSelector && (
-          <ThemeSelector
-            selectedTheme={selectedTheme}
-            onSelectTheme={setSelectedTheme}
-            level={getLevel()}
-            points={points}
-            onClose={() => setShowThemeSelector(false)}
-          />
-        )}
-        <Companion level={getLevel()} />
         {activeGame === "calcul-mental" && (
           <CalculMentalGame
             matiere={matiere}
@@ -2310,71 +2123,6 @@ Bravo pour ton travail ! 💪`,
             onWin={handleGameWin}
           />
         )}
-      {showPinPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                <KeyRound className="w-5 h-5 text-purple-600" />
-                <h2 className="text-lg font-bold">Code d&apos;accès</h2>
-              </div>
-              <button
-                onClick={() => {
-                  setShowPinPopup(false);
-                  setPinValue("");
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <p className="text-sm text-gray-600 mb-3">
-              Entre le code secret pour ouvrir le menu des étoiles.
-            </p>
-            <input
-              type="password"
-              value={pinValue}
-              onChange={(e) => setPinValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (pinValue === MASTER_PIN) {
-                    setShowPinPopup(false);
-                    setPinValue("");
-                    setShowCodePanel(true);
-                  } else {
-                    alert("Code incorrect. Réessaie.");
-                  }
-                }
-              }}
-              maxLength={8}
-              className="w-full border border-gray-300 rounded-xl px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 tracking-[0.3em] text-center"
-            />
-            <button
-              onClick={() => {
-                if (pinValue === MASTER_PIN) {
-                  setShowPinPopup(false);
-                  setPinValue("");
-                  setShowCodePanel(true);
-                } else {
-                  alert("Code incorrect. Réessaie.");
-                }
-              }}
-              className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-xl"
-            >
-              Valider
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showCodePanel && (
-        <CodePanel
-          onClose={() => setShowCodePanel(false)}
-          onAddPoints={(amount) => setPoints((p) => p + amount)}
-          onRemovePoints={(amount) => setPoints((p) => Math.max(0, p - amount))}
-        />
-      )}
-
         {activeGame === "francais-verbe" && (
           <FrenchVerbGame
             onClose={() => setActiveGame(null)}
@@ -2444,7 +2192,7 @@ Bravo pour ton travail ! 💪`,
   const currentMatiere = MATIERES.find((m) => m.id === matiere);
 
   return (
-    <div className={`min-h-screen ${themeConfig.bgChat} pb-32 sm:pb-40`}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 pb-32 sm:pb-40">
       {showCelebration && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-2xl p-8 animate-bounce">
@@ -2545,7 +2293,7 @@ Bravo pour ton travail ! 💪`,
               <button onClick={() => setShowMiniGames(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <button onClick={() => setShowPinPopup(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
+              <button onClick={() => setShowCodePanel(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               {matiere === "arts-plastiques" && themeSelectionne === "palette-graphique" && (
@@ -2672,8 +2420,6 @@ Bravo pour ton travail ! 💪`,
           <div ref={messagesEndRef} />
         </div>
       </div>
-
-      <Companion level={getLevel()} />
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
         <div className="max-w-4xl mx-auto p-3 sm:p-4">
