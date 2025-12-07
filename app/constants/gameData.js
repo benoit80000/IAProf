@@ -176,7 +176,7 @@ export const MINI_GAMES_BY_THEME = {
   // Anglais
   "vocabulaire-quotidien": ["anglais-memory"],
   "verbes-irreguliers": ["anglais-memory"],
-  "compréhension-orale": ["quiz-rapide"],
+  "comprehension-orale": ["quiz-rapide"],
   "dictionnaire": ["anglais-memory"],
 
   // Sciences

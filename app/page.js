@@ -1538,6 +1538,7 @@ const MiniGamesPanel = ({ onClose, onSelectGame, level = 1, points = 0, recommen
 
 
 // ==================== MAIN COMPONENT ====================
+// ==================== MAIN COMPONENT ====================
 export default function ProfIA() {
   // Core state
   const [matiere, setMatiere] = useState("");
@@ -1803,6 +1804,8 @@ export default function ProfIA() {
       19: 32000,
       20: 35000,
     };
+    return thresholds[level + 1] ?? null;
+  };
 
 
 
@@ -1838,8 +1841,6 @@ export default function ProfIA() {
   };
 
 
-    return thresholds[level + 1] ?? null;
-  };
 
 
   const handleUnlock = (type, item) => {
@@ -2163,8 +2164,6 @@ Bravo pour ton travail ! 💪`,
             onClose={() => setShowMiniGames(false)}
             level={getLevel()}
             points={points}
-            recommendedGameIds={getRecommendedGamesForCurrentTheme()}
-            autoGameId={getAutoGameForCurrentTheme()}
             onSelectGame={(gameId) => {
               setShowMiniGames(false);
               handleStartGame(gameId);
@@ -2305,6 +2304,8 @@ Bravo pour ton travail ! 💪`,
           onClose={() => setShowMiniGames(false)}
           level={getLevel()}
           points={points}
+          recommendedGameIds={getRecommendedGamesForCurrentTheme()}
+          autoGameId={getAutoGameForCurrentTheme()}
           onSelectGame={(gameId) => {
             setShowMiniGames(false);
             handleStartGame(gameId);
