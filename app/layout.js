@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Prof IA CM1',
-  description: 'Ton professeur virtuel pour réviser tes leçons !',
+  title: "Apprendre le CM1",
+  description: "Ton professeur virtuel pour apprendre le CM1 !",
 };
 
 export default function RootLayout({ children }) {
