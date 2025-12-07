@@ -22,12 +22,9 @@ export const MATIERES = [
 
 export const THEMES_PAR_MATIERE = {
   maths: [
-    { id: "numeration", nom: "Numération", emoji: "🔢" },
-    { id: "calcul-mental", nom: "Calcul mental", emoji: "🧠" },
     { id: "fractions", nom: "Les fractions", emoji: "🍕" },
     { id: "grands-nombres", nom: "Grands nombres", emoji: "🔢" },
     { id: "additions", nom: "Additions", emoji: "➕" },
-    { id: "soustractions", nom: "Soustractions", emoji: "➖" },
     { id: "multiplications", nom: "Multiplications", emoji: "✖️" },
     { id: "divisions", nom: "Divisions", emoji: "➗" },
     { id: "geometrie", nom: "Géométrie", emoji: "📐" },
@@ -35,46 +32,33 @@ export const THEMES_PAR_MATIERE = {
     { id: "problemes", nom: "Problèmes", emoji: "🧩" },
   ],
   francais: [
-    { id: "lecture", nom: "Lecture", emoji: "📰" },
-    { id: "comprehension-texte", nom: "Compréhension de texte", emoji: "🧠" },
-    { id: "vocabulaire", nom: "Vocabulaire", emoji: "📚" },
-    { id: "grammaire", nom: "Grammaire", emoji: "📖" },
-    { id: "nature-mots", nom: "Nature des mots", emoji: "🔤" },
-    { id: "fonctions", nom: "Fonctions (sujet / COD)", emoji: "🎯" },
     { id: "conjugaison", nom: "Conjugaison", emoji: "⏰" },
+    { id: "grammaire", nom: "Grammaire", emoji: "📖" },
     { id: "orthographe", nom: "Orthographe", emoji: "✍️" },
-    { id: "types-phrases", nom: "Types de phrases", emoji: "❓" },
+    { id: "vocabulaire", nom: "Vocabulaire", emoji: "📚" },
+    { id: "lecture", nom: "Lecture", emoji: "📰" },
     { id: "redaction", nom: "Rédaction", emoji: "📝" },
+    { id: "cod-coi", nom: "COD/COI", emoji: "🎯" },
+    { id: "types-phrases", nom: "Types phrases", emoji: "❓" },
   ],
   dictee: [
-    { id: "mots-invariables", nom: "Mots invariables", emoji: "📌" },
     { id: "sons-difficiles", nom: "Sons difficiles", emoji: "🌀" },
-    { id: "accord-groupe-nominal", nom: "Accord dans le GN", emoji: "🧱" },
-    { id: "accords", nom: "Accords du verbe", emoji: "✅" },
-    { id: "homophones", nom: "Homophones", emoji: "🔁" },
+    { id: "accords", nom: "Accords", emoji: "✅" },
     { id: "mots-outils", nom: "Mots outils", emoji: "🧩" },
   ],
   anglais: [
     { id: "vocabulaire-quotidien", nom: "Vocabulaire du quotidien", emoji: "🗣️" },
-    { id: "school", nom: "School", emoji: "🏫" },
-    { id: "family", nom: "Family", emoji: "👨‍👩‍👧‍👦" },
-    { id: "food", nom: "Food", emoji: "🍎" },
-    { id: "daily-routine", nom: "Daily routine", emoji: "⏰" },
-    { id: "phrases-simples-en", nom: "Phrases simples", emoji: "💬" },
-    { id: "compréhension-orale", nom: "Compréhension orale", emoji: "🎧" },
     { id: "verbes-irreguliers", nom: "Verbes irréguliers", emoji: "📚" },
+    { id: "compréhension-orale", nom: "Compréhension orale", emoji: "🎧" },
     { id: "dictionnaire", nom: "Dictionnaire", emoji: "📖" },
   ],
   sciences: [
     { id: "corps-humain", nom: "Corps humain", emoji: "🧍" },
     { id: "digestion", nom: "Digestion", emoji: "🍎" },
     { id: "respiration", nom: "Respiration", emoji: "💨" },
-    { id: "vivant", nom: "Le vivant", emoji: "🌱" },
-    { id: "plantes", nom: "Plantes", emoji: "🌿" },
+    { id: "plantes", nom: "Plantes", emoji: "🌱" },
     { id: "animaux", nom: "Animaux", emoji: "🦋" },
-    { id: "matiere-objets", nom: "Matière et objets", emoji: "🧪" },
-    { id: "terre-espace", nom: "Terre et espace", emoji: "🌍" },
-    { id: "environnement", nom: "Environnement", emoji: "🌎" },
+    { id: "environnement", nom: "Environnement", emoji: "🌍" },
     { id: "energie", nom: "Énergie", emoji: "⚡" },
     { id: "eau", nom: "L'eau", emoji: "💧" },
   ],
@@ -83,38 +67,16 @@ export const THEMES_PAR_MATIERE = {
     { id: "antiquite", nom: "Antiquité", emoji: "🏛️" },
     { id: "moyen-age", nom: "Moyen Âge", emoji: "🏰" },
     { id: "temps-modernes", nom: "Temps modernes", emoji: "⚓" },
-    { id: "frise-chronologique", nom: "Frise chronologique", emoji: "📅" },
-    { id: "personnages", nom: "Personnages célèbres", emoji: "🧑‍🎓" },
   ],
   geographie: [
     { id: "france-geo", nom: "Géo France", emoji: "🗺️" },
     { id: "regions", nom: "Régions", emoji: "🇫🇷" },
     { id: "monde", nom: "Le monde", emoji: "🌍" },
-    { id: "pays-europe", nom: "Pays d'Europe", emoji: "🇪🇺" },
-    { id: "paysages", nom: "Paysages", emoji: "🏞️" },
   ],
   "arts-plastiques": [
     { id: "couleurs", nom: "Couleurs et mélanges", emoji: "🎨" },
     { id: "palette-graphique", nom: "Palette graphique", emoji: "🖌️" },
     { id: "formes-composition", nom: "Formes et composition", emoji: "🟦" },
-    { id: "reproduction-motifs", nom: "Reproduire un motif", emoji: "📐" },
-    { id: "observation-oeuvres", nom: "Observer une œuvre", emoji: "🖼️" },
-  ],
-  "education-musicale": [
-    { id: "rythme", nom: "Rythme", emoji: "🥁" },
-    { id: "chant", nom: "Chant", emoji: "🎤" },
-    { id: "instruments", nom: "Instruments", emoji: "🎹" },
-    { id: "ecoute", nom: "Écoute d'œuvres", emoji: "🎧" },
-  ],
-  "histoire-des-arts": [
-    { id: "tableaux", nom: "Tableaux célèbres", emoji: "🖼️" },
-    { id: "sculptures", nom: "Sculptures", emoji: "🗿" },
-    { id: "architectures", nom: "Architecture", emoji: "🏰" },
-  ],
-  eps: [
-    { id: "jeux-collectifs", nom: "Jeux collectifs", emoji: "🤾" },
-    { id: "endurance", nom: "Endurance", emoji: "🏃" },
-    { id: "coordination", nom: "Coordination", emoji: "🤸" },
   ],
   emc: [
     { id: "vivre-ensemble", nom: "Vivre ensemble", emoji: "👥" },
@@ -124,8 +86,6 @@ export const THEMES_PAR_MATIERE = {
     { id: "environnement", nom: "Environnement", emoji: "♻️" },
     { id: "solidarite", nom: "Solidarité", emoji: "💚" },
     { id: "citoyennete", nom: "Citoyenneté", emoji: "🗳️" },
-    { id: "emotions", nom: "Les émotions", emoji: "😊" },
-    { id: "symboles-republique", nom: "Symboles de la République", emoji: "🇫🇷" },
   ],
 };
 
@@ -184,7 +144,75 @@ export const MINI_GAMES = [
   { id: "francais-verbe", nom: "Trouve le verbe", emoji: "🧠", desc: "Clique sur le verbe dans la phrase", levelRequired: 2 },
   { id: "anglais-memory", nom: "Memory anglais", emoji: "🔤", desc: "Associe les mots anglais et français", levelRequired: 2 },
 ];
+\n\n
+export const MINI_GAMES_BY_THEME = {
+  // Maths
+  "fractions": ["calcul-mental", "comparaison-maths"],
+  "grands-nombres": ["comparaison-maths", "calcul-mental"],
+  "additions": ["calcul-mental"],
+  "multiplications": ["calcul-mental"],
+  "divisions": ["calcul-mental"],
+  "geometrie": ["quiz-rapide"],
+  "mesures": ["quiz-rapide"],
+  "problemes": ["quiz-rapide"],
 
+  // Français
+  "conjugaison": ["vrai-faux", "quiz-rapide"],
+  "grammaire": ["vrai-faux"],
+  "orthographe": ["pendu", "vrai-faux"],
+  "vocabulaire": ["pendu", "quiz-rapide"],
+  "lecture": ["quiz-rapide"],
+  "redaction": ["quiz-rapide"],
+  "cod-coi": ["vrai-faux"],
+  "types-phrases": ["vrai-faux"],
+
+  // Dictée
+  "sons-difficiles": ["vrai-faux"],
+  "accords": ["vrai-faux"],
+  "mots-outils": ["pendu"],
+
+  // Anglais
+  "vocabulaire-quotidien": ["anglais-memory"],
+  "verbes-irreguliers": ["anglais-memory"],
+  "compréhension-orale": ["quiz-rapide"],
+  "dictionnaire": ["anglais-memory"],
+
+  // Sciences
+  "corps-humain": ["vrai-faux", "quiz-rapide"],
+  "digestion": ["quiz-rapide"],
+  "respiration": ["vrai-faux"],
+  "plantes": ["vrai-faux"],
+  "animaux": ["vrai-faux", "quiz-rapide"],
+  "environnement": ["vrai-faux"],
+  "energie": ["vrai-faux"],
+  "eau": ["vrai-faux"],
+
+  // Histoire
+  "prehistoire": ["quiz-rapide"],
+  "antiquite": ["quiz-rapide"],
+  "moyen-age": ["quiz-rapide"],
+  "temps-modernes": ["quiz-rapide"],
+
+  // Géographie
+  "france-geo": ["quiz-rapide"],
+  "regions": ["quiz-rapide"],
+  "monde": ["quiz-rapide"],
+
+  // Arts plastiques
+  "couleurs": ["quiz-rapide"],
+  "palette-graphique": [],
+  "formes-composition": ["quiz-rapide"],
+
+  // EMC
+  "vivre-ensemble": ["vrai-faux"],
+  "regles": ["vrai-faux"],
+  "droits": ["vrai-faux"],
+  "egalite": ["vrai-faux"],
+  "environnement-emc": ["vrai-faux"],
+  "solidarite": ["vrai-faux"],
+  "citoyennete": ["vrai-faux"],
+};
+\n
 export const LEVEL_THRESHOLDS = {
   1: 0,
   2: 150,

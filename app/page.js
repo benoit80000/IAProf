@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 
 import useLocalStorage from "./hooks/useLocalStorage";
-import { MATIERES, THEMES_PAR_MATIERE, BADGES, AVATARS, AVATAR_COLORS, MINI_GAMES } from "./constants/gameData";
+import { MATIERES, THEMES_PAR_MATIERE, BADGES, AVATARS, AVATAR_COLORS, MINI_GAMES, MINI_GAMES_BY_THEME } from "./constants/gameData";
 
 // ==================== CONSTANTS ====================
 // ==================== HOOKS ====================
@@ -1409,11 +1409,22 @@ const EnglishMemoryGame = ({ onClose, onWin }) => {
 
         <p className="text-xs text-gray-500 mt-3 text-right">Coups : {moves}</p>
       </div>
-    </div>
-  );
-};
+const MiniGamesPanel = ({ onClose, onSelectGame, level = 1, points = 0, recommendedGameIds, autoGameId }) => {
+  const visibleGames =
+    recommendedGameIds && recommendedGameIds.length > 0
+      ? MINI_GAMES.filter((game) => recommendedGameIds.includes(game.id))
+      : MINI_GAMES;
 
-const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
+  const hasSpecificGames = recommendedGameIds && recommendedGameIds.length > 0;
+  const effectiveAutoGameId =
+    autoGameId && visibleGames.find((g) => g.id === autoGameId) ? autoGameId : (visibleGames[0]?.id || null);
+
+  const handleAutoPlay = () => {
+    if (effectiveAutoGameId) {
+      onSelectGame(effectiveAutoGameId);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full">
@@ -1431,12 +1442,43 @@ const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
           Chaque partie coûte <span className="font-semibold">10 étoiles</span>. Certains jeux se débloquent avec ton niveau.
         </p>
 
+        {hasSpecificGames && (
+          <div className="mb-4 p-3 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-between gap-3">
+            <div className="text-xs sm:text-sm text-gray-700">
+              <span className="font-semibold">Jeu conseillé pour ce thème :</span>{" "}
+              <span>
+                {
+                  visibleGames.find((g) => g.id === effectiveAutoGameId)?.nom ||
+                  visibleGames[0]?.nom
+                }
+              </span>
+            </div>
+            <button
+              onClick={handleAutoPlay}
+              className="flex items-center gap-1 px-3 py-1 rounded-full bg-purple-500 hover:bg-purple-600 text-white text-xs sm:text-sm font-semibold"
+            >
+              <Gamepad2 className="w-4 h-4" />
+              Jouer
+            </button>
+          </div>
+        )}
+
+        {!hasSpecificGames && (
+          <div className="mb-4 p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs sm:text-sm text-gray-600">
+            Aucun mini-jeu spécifique n'est encore défini pour ce thème. Tu peux quand même choisir{" "}
+            <span className="font-semibold">n'importe quel mini-jeu</span> ci-dessous.
+          </div>
+        )}
+
         <div className="space-y-3">
-          {MINI_GAMES.map((game) => {
+          {visibleGames.map((game) => {
             const requiredLevel = game.levelRequired || 1;
-            const unlocked = level >= requiredLevel;
-            const enoughPoints = points >= 10;
+            const unlocked = (level || 1) >= requiredLevel;
+            const enoughPoints = (points || 0) >= 10;
             const disabled = !unlocked || !enoughPoints;
+
+            const isRecommended =
+              recommendedGameIds && recommendedGameIds.includes(game.id);
 
             return (
               <button
@@ -1451,7 +1493,14 @@ const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
               >
                 <div className="text-4xl">{game.emoji}</div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg">{game.nom}</h3>
+                  <h3 className="font-bold text-lg flex items-center gap-2">
+                    {game.nom}
+                    {isRecommended && (
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                        Conseillé
+                      </span>
+                    )}
+                  </h3>
                   <p className="text-sm text-gray-600">{game.desc}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
@@ -1461,10 +1510,14 @@ const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
                       <Trophy className="w-3 h-3" /> Niveau {requiredLevel}+
                     </span>
                     {!unlocked && (
-                      <span className="text-[11px] text-gray-500">Atteins le niveau {requiredLevel} pour débloquer ce jeu.</span>
+                      <span className="text-[11px] text-gray-500">
+                        Atteins le niveau {requiredLevel} pour débloquer ce jeu.
+                      </span>
                     )}
                     {unlocked && !enoughPoints && (
-                      <span className="text-[11px] text-red-500">Pas assez d'étoiles pour jouer.</span>
+                      <span className="text-[11px] text-red-500">
+                        Pas assez d'étoiles pour jouer.
+                      </span>
                     )}
                   </div>
                 </div>
@@ -1476,18 +1529,7 @@ const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
     </div>
   );
 };
-
-
-// ==================== MAIN COMPONENT ====================
-export default function ProfIA() {
-  // Core state
-  const [matiere, setMatiere] = useState("");
-  const [themeSelectionne, setThemeSelectionne] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [photo, setPhoto] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+setPhotoPreview] = useState(null);
   const [quizMode, setQuizMode] = useState(false);
   const [quizCount, setQuizCount] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -1748,6 +1790,37 @@ export default function ProfIA() {
   };
 
 
+
+  const getRecommendedGamesForCurrentTheme = () => {
+    if (!themeSelectionne || themeSelectionne === "general") {
+      return MINI_GAMES.map((g) => g.id);
+    }
+
+    if (MINI_GAMES_BY_THEME[themeSelectionne]) {
+      return MINI_GAMES_BY_THEME[themeSelectionne];
+    }
+
+    // Fallback simple par matière si aucun mapping précis n'est défini
+    if (matiere === "maths") {
+      return ["calcul-mental", "comparaison-maths"];
+    }
+    if (matiere === "francais" || matiere === "dictee") {
+      return ["francais-verbe", "pendu", "vrai-faux"];
+    }
+    if (matiere === "anglais") {
+      return ["anglais-memory", "quiz-rapide"];
+    }
+    if (matiere === "sciences" || matiere === "histoire" || matiere === "geographie" || matiere === "emc") {
+      return ["vrai-faux", "quiz-rapide"];
+    }
+
+    return MINI_GAMES.map((g) => g.id);
+  };
+
+  const getAutoGameForCurrentTheme = () => {
+    const list = getRecommendedGamesForCurrentTheme();
+    return list && list.length > 0 ? list[0] : null;
+  };
   const handleUnlock = (type, item) => {
     if (points >= item.cost) {
       if (type === "avatar") {
@@ -2207,9 +2280,13 @@ Bravo pour ton travail ! 💪`,
       {showMiniGames && (
         <MiniGamesPanel
           onClose={() => setShowMiniGames(false)}
+          level={getLevel()}
+          points={points}
+          recommendedGameIds={getRecommendedGamesForCurrentTheme()}
+          autoGameId={getAutoGameForCurrentTheme()}
           onSelectGame={(gameId) => {
             setShowMiniGames(false);
-            setActiveGame(gameId);
+            handleStartGame(gameId);
           }}
         />
       )}
