@@ -1513,6 +1513,9 @@ export default function ProfIA() {
   const [showMiniGames, setShowMiniGames] = useState(false);
   const [showDrawing, setShowDrawing] = useState(false);
   const [showCodePanel, setShowCodePanel] = useState(false);
+  const [showPinPopup, setShowPinPopup] = useState(false);
+  const [pinValue, setPinValue] = useState("");
+  const MASTER_PIN = "12345";
   const [activeGame, setActiveGame] = useState(null);
   const [lastPointsGain, setLastPointsGain] = useState(0);
   const [showPointsPop, setShowPointsPop] = useState(false);
@@ -2075,7 +2078,49 @@ Bravo pour ton travail ! 💪`,
             }}
           />
         )}
-        {showCodePanel && (
+        
+      {showPinPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-xs w-full">
+            <h2 className="text-lg font-bold mb-3 text-center">🔒 Accès protégé</h2>
+            <p className="text-sm text-gray-600 mb-4 text-center">Entre le code secret pour débloquer le menu :</p>
+            <input
+              type="password"
+              value={pinValue}
+              onChange={(e) => setPinValue(e.target.value)}
+              placeholder="Code à 5 chiffres"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 text-center text-lg tracking-[8px]"
+              maxLength={5}
+            />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => {
+                  if (pinValue === MASTER_PIN) {
+                    setShowPinPopup(false);
+                    setPinValue("");
+                    setShowCodePanel(true);
+                  } else {
+                    alert("⛔ Code incorrect !");
+                  }
+                }}
+                className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-xl text-sm font-semibold"
+              >
+                OK
+              </button>
+              <button
+                onClick={() => {
+                  setShowPinPopup(false);
+                  setPinValue("");
+                }}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 rounded-xl text-sm font-semibold"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+{showCodePanel && (
           <CodePanel
             onClose={() => setShowCodePanel(false)}
             onAddPoints={(amount) => setPoints((p) => p + amount)}
@@ -2293,7 +2338,7 @@ Bravo pour ton travail ! 💪`,
               <button onClick={() => setShowMiniGames(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <button onClick={() => setShowCodePanel(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
+              <button onClick={() => setShowPinPopup(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               {matiere === "arts-plastiques" && themeSelectionne === "palette-graphique" && (
