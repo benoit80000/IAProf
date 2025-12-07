@@ -1393,7 +1393,55 @@ const EnglishMemoryGame = ({ onClose, onWin }) => {
             const isFlipped =
               !!flipped.find((c) => c.id === card.id) || matched.includes(card.id);
             return (
+              <button
+                key={card.id}
+                onClick={() => handleCardClick(card)}
+                className={`h-16 rounded-xl border text-sm font-bold flex items-center justify-center ${
+                  isFlipped
+                    ? "bg-indigo-100 border-indigo-400 text-indigo-700"
+                    : "bg-gray-100 border-gray-300 text-gray-400"
+                }`}
+              >
+                {isFlipped ? card.label : "?"}
+              </button>
+            );
+          })}
+        </div>
 
+        <p className="text-xs text-gray-500 mt-3 text-right">Coups : {moves}</p>
+      </div>
+    </div>
+  );
+};
+
+
+const MiniGamesPanel = ({ onClose, onSelectGame, level = 1, points = 0, recommendedGameIds, autoGameId }) => {
+  const visibleGames =
+    recommendedGameIds && recommendedGameIds.length > 0
+      ? MINI_GAMES.filter((game) => recommendedGameIds.includes(game.id))
+      : MINI_GAMES;
+
+  const hasSpecificGames = recommendedGameIds && recommendedGameIds.length > 0;
+  const effectiveAutoGameId =
+    autoGameId && visibleGames.find((g) => g.id === autoGameId) ? autoGameId : (visibleGames[0]?.id || null);
+
+  const handleAutoPlay = () => {
+    if (effectiveAutoGameId) {
+      onSelectGame(effectiveAutoGameId);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <Gamepad2 className="w-6 h-6 text-purple-600" />
+            <h2 className="text-xl font-bold">Mini-Jeux</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         <p className="text-xs text-gray-500 mb-3">
@@ -2425,17 +2473,6 @@ Bravo pour ton travail ! 💪`,
                         <span className="font-bold text-sm sm:text-base">Quiz Photo</span>
                       </div>
                       <p className="text-xs opacity-90">Montre ton cahier</p>
-                    </button>
-
-                    <button
-                      onClick={() => handleQuickAction("minigames")}
-                      className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-xl p-3 sm:p-4 transition-all transform active:scale-95 shadow-lg text-left"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <Gamepad2 className="w-5 h-5" />
-                        <span className="font-bold text-sm sm:text-base">Mini-Jeux</span>
-                      </div>
-                      <p className="text-xs opacity-90">Apprends en jouant</p>
                     </button>
 
 
