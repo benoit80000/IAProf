@@ -1409,6 +1409,11 @@ const EnglishMemoryGame = ({ onClose, onWin }) => {
 
         <p className="text-xs text-gray-500 mt-3 text-right">Coups : {moves}</p>
       </div>
+    </div>
+  );
+};
+
+
 const MiniGamesPanel = ({ onClose, onSelectGame, level = 1, points = 0, recommendedGameIds, autoGameId }) => {
   const visibleGames =
     recommendedGameIds && recommendedGameIds.length > 0
@@ -1529,7 +1534,18 @@ const MiniGamesPanel = ({ onClose, onSelectGame, level = 1, points = 0, recommen
     </div>
   );
 };
-setPhotoPreview] = useState(null);
+
+
+// ==================== MAIN COMPONENT ====================
+export default function ProfIA() {
+  // Core state
+  const [matiere, setMatiere] = useState("");
+  const [themeSelectionne, setThemeSelectionne] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [quizMode, setQuizMode] = useState(false);
   const [quizCount, setQuizCount] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -1786,8 +1802,6 @@ setPhotoPreview] = useState(null);
       19: 32000,
       20: 35000,
     };
-    return thresholds[level + 1] ?? null;
-  };
 
 
 
@@ -1821,6 +1835,12 @@ setPhotoPreview] = useState(null);
     const list = getRecommendedGamesForCurrentTheme();
     return list && list.length > 0 ? list[0] : null;
   };
+
+
+    return thresholds[level + 1] ?? null;
+  };
+
+
   const handleUnlock = (type, item) => {
     if (points >= item.cost) {
       if (type === "avatar") {
@@ -2142,6 +2162,8 @@ Bravo pour ton travail ! 💪`,
             onClose={() => setShowMiniGames(false)}
             level={getLevel()}
             points={points}
+            recommendedGameIds={getRecommendedGamesForCurrentTheme()}
+            autoGameId={getAutoGameForCurrentTheme()}
             onSelectGame={(gameId) => {
               setShowMiniGames(false);
               handleStartGame(gameId);
@@ -2282,8 +2304,6 @@ Bravo pour ton travail ! 💪`,
           onClose={() => setShowMiniGames(false)}
           level={getLevel()}
           points={points}
-          recommendedGameIds={getRecommendedGamesForCurrentTheme()}
-          autoGameId={getAutoGameForCurrentTheme()}
           onSelectGame={(gameId) => {
             setShowMiniGames(false);
             handleStartGame(gameId);

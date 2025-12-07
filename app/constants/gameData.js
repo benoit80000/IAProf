@@ -144,7 +144,9 @@ export const MINI_GAMES = [
   { id: "francais-verbe", nom: "Trouve le verbe", emoji: "🧠", desc: "Clique sur le verbe dans la phrase", levelRequired: 2 },
   { id: "anglais-memory", nom: "Memory anglais", emoji: "🔤", desc: "Associe les mots anglais et français", levelRequired: 2 },
 ];
-\n\n
+
+
+
 export const MINI_GAMES_BY_THEME = {
   // Maths
   "fractions": ["calcul-mental", "comparaison-maths"],
@@ -212,7 +214,9 @@ export const MINI_GAMES_BY_THEME = {
   "solidarite": ["vrai-faux"],
   "citoyennete": ["vrai-faux"],
 };
-\n
+
+
+
 export const LEVEL_THRESHOLDS = {
   1: 0,
   2: 150,
