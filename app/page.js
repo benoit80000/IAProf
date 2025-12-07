@@ -95,7 +95,7 @@ const LevelProgress = ({ points, currentBadge, nextBadge }) => {
   const CurrentIcon = currentBadge.icon;
 
   return (
-    <div className="card-dark p-3">
+    <div className="bg-white rounded-xl p-3 shadow-md">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <CurrentIcon className={`w-5 h-5 ${currentBadge.color}`} />
@@ -133,7 +133,7 @@ const DailyMissionsPanel = ({ missions, completedMissions, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Target className="w-6 h-6 text-purple-600" />
@@ -242,7 +242,7 @@ const AvatarSelector = ({
 }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <User className="w-6 h-6 text-purple-600" />
@@ -333,7 +333,7 @@ const AvatarSelector = ({
 const BadgesPanel = ({ points, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">🏆 Tes Badges</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -383,7 +383,7 @@ const CodePanel = ({ onClose, onAddPoints, onRemovePoints }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <KeyRound className="w-6 h-6 text-purple-600" />
@@ -509,7 +509,7 @@ const CalculMentalGame = ({ matiere, theme, onClose, onWin }) => {
   if (gameOver) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="card-dark p-8 max-w-md w-full text-center">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">⏱️ Temps écoulé !</h2>
           <div className="text-6xl mb-4">🧮</div>
           <p className="text-xl mb-2">
@@ -528,7 +528,7 @@ const CalculMentalGame = ({ matiere, theme, onClose, onWin }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2 bg-red-100 px-3 py-1 rounded-full">
             <Timer className="w-5 h-5 text-red-500" />
@@ -692,7 +692,7 @@ const PenduGame = ({ matiere, theme, onClose, onWin }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-purple-600" />
@@ -790,7 +790,7 @@ const VraiFauxGame = ({ matiere, theme, onClose, onWin, title = "Vrai ou Faux" }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-purple-600" />
@@ -912,7 +912,7 @@ const MathCompareGame = ({ matiere, theme, onClose, onWin }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Calculator className="w-5 h-5 text-purple-600" />
@@ -1056,7 +1056,7 @@ const DrawingCanvas = ({ onClose, onValidate }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-4 sm:p-6 max-w-3xl w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-6 max-w-3xl w-full">
         <div className="flex justify-between items-center mb-3 sm:mb-4">
           <div className="flex items-center gap-2">
             <Palette className="w-5 h-5 text-purple-600" />
@@ -1077,7 +1077,7 @@ const DrawingCanvas = ({ onClose, onValidate }) => {
               ref={canvasRef}
               width={700}
               height={400}
-              className="border border-slate-700 rounded-xl shadow-inner touch-none bg-slate-900"
+              className="border border-gray-300 rounded-xl shadow-inner touch-none bg-white"
               onMouseDown={startDrawing}
               onMouseMove={draw}
               onMouseUp={stopDrawing}
@@ -1237,7 +1237,7 @@ const FrenchVerbGame = ({ onClose, onWin }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-purple-600" />
@@ -1372,7 +1372,7 @@ const EnglishMemoryGame = ({ onClose, onWin }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="card-dark p-6 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-indigo-600" />
@@ -2054,7 +2054,7 @@ Bravo pour ton travail ! 💪`,
   // ==================== RENDER: Subject Selection ====================
   if (!matiere) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-6 mt-4">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -2063,7 +2063,7 @@ Bravo pour ton travail ! 💪`,
             </div>
           </div>
 
-          <div className="card-dark p-4 mb-6">
+          <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <button
                 onClick={() => setShowAvatar(true)}
@@ -2101,7 +2101,7 @@ Bravo pour ton travail ! 💪`,
             </div>
           </div>
 
-          <div className="card-dark p-6 mb-6">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 mb-6">
             <h2 className="text-xl font-bold text-center mb-6 text-gray-800">Quelle matière veux-tu réviser ? 📚</h2>
 
             <div className="grid grid-cols-2 gap-3">
