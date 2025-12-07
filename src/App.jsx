@@ -9,7 +9,7 @@ import { generateDailyMissions } from "./data/missions";
 import { getGameById } from "./data/games";
 
 const INITIAL_PLAYER = {
-  name: "Léo",
+  name: "Eléve",
   level: 1,
   xp: 0,
   nextLevelXp: 100,
