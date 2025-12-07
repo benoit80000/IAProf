@@ -25,9 +25,8 @@ GAMIFICATION : Quand l'enfant répond bien, félicite avec enthousiasme !`;
 
 const QUIZ_PROMPT = `MODE QUIZ - Question {quizCount}/10 :
 
-Tu es en train de faire passer un quiz basé UNIQUEMENT sur la page de cours visible sur la photo du cahier de l'élève.
+Tu es en train de faire passer un quiz basé sur le cahier de l'élève.
 - Pose UNE SEULE question claire et adaptée CM1
-- Ne pose des questions QUE sur les informations présentes dans ce cours (aucune question de culture générale ou hors de ce contenu)
 - Attends la réponse de l'enfant
 - Félicite si correct : "Bravo ! C'est exact ! ⭐" puis passe à la question suivante
 - Si erreur : "Presque ! Voici la réponse : [explication]" puis passe à la question suivante

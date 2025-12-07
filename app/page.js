@@ -22,17 +22,142 @@ import {
   Timer,
   Check,
   User,
-  Palette,
-  PenTool,
-  Download,
-  Calculator,
 } from "lucide-react";
 
-import useLocalStorage from "./hooks/useLocalStorage";
-import { MATIERES, THEMES_PAR_MATIERE, BADGES, AVATARS, AVATAR_COLORS, MINI_GAMES } from "./constants/gameData";
-
 // ==================== CONSTANTS ====================
+const MATIERES = [
+  { id: "maths", nom: "Mathématiques", emoji: "🔢", color: "bg-blue-500" },
+  { id: "francais", nom: "Français", emoji: "📝", color: "bg-purple-500" },
+  { id: "anglais", nom: "Anglais", emoji: "🇬🇧", color: "bg-indigo-500" },
+  { id: "sciences", nom: "Sciences", emoji: "🔬", color: "bg-green-500" },
+  { id: "histoire", nom: "Histoire-Géo", emoji: "🌍", color: "bg-orange-500" },
+  { id: "emc", nom: "EMC", emoji: "🤝", color: "bg-pink-500" },
+];
+
+const THEMES_PAR_MATIERE = {
+  maths: [
+    { id: "fractions", nom: "Les fractions", emoji: "🍕" },
+    { id: "grands-nombres", nom: "Grands nombres", emoji: "🔢" },
+    { id: "additions", nom: "Additions", emoji: "➕" },
+    { id: "multiplications", nom: "Multiplications", emoji: "✖️" },
+    { id: "divisions", nom: "Divisions", emoji: "➗" },
+    { id: "geometrie", nom: "Géométrie", emoji: "📐" },
+    { id: "mesures", nom: "Mesures", emoji: "📏" },
+    { id: "problemes", nom: "Problèmes", emoji: "🧩" },
+  ],
+  francais: [
+    { id: "conjugaison", nom: "Conjugaison", emoji: "⏰" },
+    { id: "grammaire", nom: "Grammaire", emoji: "📖" },
+    { id: "orthographe", nom: "Orthographe", emoji: "✍️" },
+    { id: "vocabulaire", nom: "Vocabulaire", emoji: "📚" },
+    { id: "lecture", nom: "Lecture", emoji: "📰" },
+    { id: "redaction", nom: "Rédaction", emoji: "📝" },
+    { id: "cod-coi", nom: "COD/COI", emoji: "🎯" },
+    { id: "types-phrases", nom: "Types phrases", emoji: "❓" },
+  ],
+  anglais: [
+    { id: "vocabulaire", nom: "Vocabulaire", emoji: "🔤" },
+    { id: "dictionnaire", nom: "Dictionnaire", emoji: "📖" },
+  ],
+  sciences: [
+    { id: "corps-humain", nom: "Corps humain", emoji: "🧍" },
+    { id: "digestion", nom: "Digestion", emoji: "🍎" },
+    { id: "respiration", nom: "Respiration", emoji: "💨" },
+    { id: "plantes", nom: "Plantes", emoji: "🌱" },
+    { id: "animaux", nom: "Animaux", emoji: "🦋" },
+    { id: "environnement", nom: "Environnement", emoji: "🌍" },
+    { id: "energie", nom: "Énergie", emoji: "⚡" },
+    { id: "eau", nom: "L'eau", emoji: "💧" },
+  ],
+  histoire: [
+    { id: "prehistoire", nom: "Préhistoire", emoji: "🦴" },
+    { id: "antiquite", nom: "Antiquité", emoji: "🏛️" },
+    { id: "moyen-age", nom: "Moyen Âge", emoji: "🏰" },
+    { id: "temps-modernes", nom: "Temps modernes", emoji: "⚓" },
+    { id: "france-geo", nom: "Géo France", emoji: "🗺️" },
+    { id: "regions", nom: "Régions", emoji: "🇫🇷" },
+    { id: "relief", nom: "Relief", emoji: "⛰️" },
+    { id: "villes", nom: "Grandes villes", emoji: "🏙️" },
+  ],
+  emc: [
+    { id: "respect", nom: "Respect", emoji: "🤝" },
+    { id: "vivre-ensemble", nom: "Vivre ensemble", emoji: "👥" },
+    { id: "regles", nom: "Règles de vie", emoji: "📋" },
+    { id: "droits", nom: "Droits/Devoirs", emoji: "⚖️" },
+    { id: "egalite", nom: "Égalité", emoji: "🟰" },
+    { id: "environnement", nom: "Environnement", emoji: "♻️" },
+    { id: "solidarite", nom: "Solidarité", emoji: "💚" },
+    { id: "citoyennete", nom: "Citoyenneté", emoji: "🗳️" },
+  ],
+};
+
+const BADGES = [
+  { id: "debutant", nom: "Débutant", icon: Star, points: 0, color: "text-gray-400", desc: "Commence l'aventure !" },
+  { id: "apprenti", nom: "Apprenti", icon: Target, points: 50, color: "text-blue-500", desc: "50 points" },
+  { id: "bon-eleve", nom: "Bon élève", icon: Award, points: 100, color: "text-green-500", desc: "100 points" },
+  { id: "expert", nom: "Expert", icon: Zap, points: 200, color: "text-yellow-500", desc: "200 points" },
+  { id: "champion", nom: "Champion", icon: Trophy, points: 300, color: "text-orange-500", desc: "300 points" },
+  { id: "maitre", nom: "Maître", icon: Crown, points: 500, color: "text-purple-500", desc: "500 points" },
+  { id: "legende", nom: "Légende", icon: Medal, points: 1000, color: "text-pink-500", desc: "1000 points" },
+];
+
+const AVATARS = [
+  { id: "cat", emoji: "🐱", nom: "Chat", cost: 0 },
+  { id: "dog", emoji: "🐶", nom: "Chien", cost: 0 },
+  { id: "rabbit", emoji: "🐰", nom: "Lapin", cost: 0 },
+  { id: "fox", emoji: "🦊", nom: "Renard", cost: 50 },
+  { id: "lion", emoji: "🦁", nom: "Lion", cost: 100 },
+  { id: "unicorn", emoji: "🦄", nom: "Licorne", cost: 150 },
+  { id: "dragon", emoji: "🐲", nom: "Dragon", cost: 200 },
+  { id: "robot", emoji: "🤖", nom: "Robot", cost: 250 },
+  { id: "alien", emoji: "👽", nom: "Alien", cost: 300 },
+  { id: "superhero", emoji: "🦸", nom: "Super-héros", cost: 500 },
+];
+
+const AVATAR_COLORS = [
+  { id: "blue", color: "bg-blue-500", nom: "Bleu", cost: 0 },
+  { id: "purple", color: "bg-purple-500", nom: "Violet", cost: 0 },
+  { id: "green", color: "bg-green-500", nom: "Vert", cost: 30 },
+  { id: "orange", color: "bg-orange-500", nom: "Orange", cost: 30 },
+  { id: "pink", color: "bg-pink-500", nom: "Rose", cost: 50 },
+  { id: "yellow", color: "bg-yellow-500", nom: "Jaune", cost: 50 },
+  { id: "red", color: "bg-red-500", nom: "Rouge", cost: 75 },
+  { id: "rainbow", color: "bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500", nom: "Arc-en-ciel", cost: 200 },
+];
+
+const MINI_GAMES = [
+  { id: "calcul-mental", nom: "Calcul Mental", emoji: "🧮", desc: "Réponds vite aux calculs !" },
+  { id: "francais-verbe", nom: "Trouve le verbe", emoji: "🧠", desc: "Clique sur le verbe dans la phrase" },
+  { id: "anglais-memory", nom: "Memory anglais", emoji: "🔤", desc: "Retrouve les paires de mots" },
+];
+
 // ==================== HOOKS ====================
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    if (typeof window === "undefined") return initialValue;
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return [storedValue, setValue];
+};
+
 const generateDailyMissions = () => {
   const today = new Date().toDateString();
   return {
@@ -40,14 +165,7 @@ const generateDailyMissions = () => {
     missions: [
       { id: "questions-5", title: "Réponds à 5 questions", target: 5, current: 0, reward: 20, type: "questions", emoji: "❓" },
       { id: "maths-3", title: "Fais 3 exercices de maths", target: 3, current: 0, reward: 15, type: "maths", emoji: "🔢" },
-      { id: "francais-3", title: "Travaille 3 questions de français", target: 3, current: 0, reward: 15, type: "francais", emoji: "📝" },
-      { id: "sciences-2", title: "Travaille 2 questions de sciences", target: 2, current: 0, reward: 15, type: "sciences", emoji: "🔬" },
-      { id: "histoire-2", title: "Travaille 2 questions d'histoire-géo", target: 2, current: 0, reward: 15, type: "histoire", emoji: "🌍" },
-      { id: "anglais-2", title: "Travaille 2 questions d'anglais", target: 2, current: 0, reward: 15, type: "anglais", emoji: "🇬🇧" },
       { id: "quiz-1", title: "Termine un quiz photo", target: 1, current: 0, reward: 25, type: "quiz", emoji: "📸" },
-      { id: "mini-jeux-1", title: "Joue à un mini-jeu", target: 1, current: 0, reward: 15, type: "mini-jeux", emoji: "🎮" },
-      { id: "arts-1", title: "Fais un dessin en arts plastiques", target: 1, current: 0, reward: 20, type: "arts", emoji: "🎨" },
-      { id: "earn-30", title: "Gagne 30 étoiles aujourd'hui", target: 30, current: 0, reward: 25, type: "earn-points", emoji: "⭐" },
       { id: "streak", title: "Maintiens ta série", target: 1, current: 0, reward: 10, type: "streak", emoji: "🔥" },
     ],
   };
@@ -126,113 +244,62 @@ const StreakDisplay = ({ streak, lastVisit }) => {
   );
 };
 
-const DailyMissionsPanel = ({ missions, completedMissions, onClose }) => {
-  const [activeTab, setActiveTab] = useState("today");
-
+const DailyMissionsPanel = ({ missions, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <Target className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold">Missions</h2>
+            <h2 className="text-xl font-bold">Missions du Jour</h2>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="flex mb-4 border-b border-gray-200">
-          <button
-            className={`flex-1 py-2 text-sm font-semibold ${activeTab === "today" ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"}`}
-            onClick={() => setActiveTab("today")}
-          >
-            Missions du jour
-          </button>
-          <button
-            className={`flex-1 py-2 text-sm font-semibold ${activeTab === "completed" ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"}`}
-            onClick={() => setActiveTab("completed")}
-          >
-            Missions réalisées
-          </button>
-        </div>
-
-        {activeTab === "today" && (
-          <div className="space-y-4">
-            {missions.map((mission) => {
-              const completed = mission.current >= mission.target;
-              return (
-                <div
-                  key={mission.id}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    completed ? "border-green-400 bg-green-50" : "border-gray-200 bg-gray-50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{mission.emoji}</span>
-                      <span className="font-semibold">{mission.title}</span>
-                    </div>
-                    <div className="flex items-center gap-1 bg-yellow-100 px-2 py-1 rounded-full">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm font-bold">+{mission.reward}</span>
-                    </div>
-                  </div>
-                  <ProgressBar
-                    current={mission.current}
-                    target={mission.target}
-                    color={completed ? "bg-green-500" : "bg-blue-500"}
-                  />
-                  {completed && (
-                    <div className="flex items-center gap-1 text-green-600 mt-2">
-                      <Check className="w-4 h-4" />
-                      <span className="text-sm font-semibold">Complété !</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {activeTab === "completed" && (
-          <div className="space-y-3">
-            {(!completedMissions || completedMissions.length === 0) && (
-              <p className="text-sm text-gray-500">Aucune mission réalisée pour le moment.</p>
-            )}
-            {completedMissions &&
-              completedMissions.map((mission, index) => (
-                <div
-                  key={mission.id + mission.date + index}
-                  className="p-3 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between"
-                >
+        <div className="space-y-4">
+          {missions.map((mission) => {
+            const completed = mission.current >= mission.target;
+            return (
+              <div
+                key={mission.id}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  completed ? "border-green-400 bg-green-50" : "border-gray-200 bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{mission.emoji}</span>
-                    <div>
-                      <p className="text-sm font-semibold">{mission.title}</p>
-                      <p className="text-xs text-gray-500">Terminé le {mission.date}</p>
-                    </div>
+                    <span className="font-semibold">{mission.title}</span>
                   </div>
                   <div className="flex items-center gap-1 bg-yellow-100 px-2 py-1 rounded-full">
                     <Star className="w-4 h-4 text-yellow-500" />
-                    <span className="text-xs font-bold">+{mission.reward}</span>
+                    <span className="text-sm font-bold">+{mission.reward}</span>
                   </div>
                 </div>
-              ))}
-          </div>
-        )}
+                <ProgressBar current={mission.current} target={mission.target} color={completed ? "bg-green-500" : "bg-blue-500"} />
+                {completed && (
+                  <div className="flex items-center gap-1 text-green-600 mt-2">
+                    <Check className="w-4 h-4" />
+                    <span className="text-sm font-semibold">Complété !</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 };
+
 const AvatarSelector = ({
   selectedAvatar,
   selectedColor,
   unlockedAvatars,
   unlockedColors,
   points,
-  showPointsPop,
-  lastPointsGain,
   onSelectAvatar,
   onSelectColor,
   onUnlock,
@@ -314,13 +381,8 @@ const AvatarSelector = ({
         </div>
 
         <div className="mt-4 p-3 bg-yellow-50 rounded-xl text-center">
-          <p className="text-sm flex items-center justify-center gap-2">
+          <p className="text-sm">
             Tes étoiles : <strong>{points} ⭐</strong>
-            {showPointsPop && (
-              <span className="text-green-600 text-xs font-bold animate-bounce">
-                +{lastPointsGain}
-              </span>
-            )}
           </p>
         </div>
       </div>
@@ -367,7 +429,7 @@ const BadgesPanel = ({ points, onClose }) => {
   );
 };
 
-const CalculMentalGame = ({ matiere, theme, onClose, onWin }) => {
+const CalculMentalGame = ({ onClose, onWin }) => {
   const [score, setScore] = useState(0);
   const [question, setQuestion] = useState(null);
   const [userAnswer, setUserAnswer] = useState("");
@@ -509,119 +571,93 @@ const CalculMentalGame = ({ matiere, theme, onClose, onWin }) => {
     </div>
   );
 };
-const WORDS_BY_SUBJECT = {
-  francais: ["verbe", "sujet", "phrase", "adjectif", "conjugaison"],
-  dictee: ["orthographe", "accord", "genre", "nombre", "ponctuation"],
-  maths: ["fraction", "addition", "soustraction", "rectangle", "triangle"],
-  sciences: ["plante", "respiration", "planete", "soleil", "energie"],
-  histoire: ["prehistoire", "antiquite", "royaume", "chateau", "empire"],
-  geographie: ["carte", "pays", "continent", "ocean", "ville"],
-  anglais: ["teacher", "school", "lesson", "english", "family"],
-  "arts-plastiques": ["couleur", "peinture", "dessin", "artiste"],
-  "education-musicale": ["musique", "rythme", "chant", "instrument"],
-  "histoire-des-arts": ["tableau", "sculpture", "museum"],
-  eps: ["sport", "course", "saut", "jeu"],
-  emc: ["respect", "regle", "droit", "solidarite"],
-  general: ["ecole", "eleve", "cahier", "professeur", "classe"],
-};
 
-const STATEMENTS_BY_SUBJECT = {
-  maths: [
-    { text: "5 + 3 = 8", isTrue: true },
-    { text: "10 est un nombre impair.", isTrue: false },
-    { text: "Un triangle a 3 côtés.", isTrue: true },
-    { text: "2 × 6 = 14.", isTrue: false },
-  ],
-  francais: [
-    { text: "Une phrase commence toujours par une majuscule.", isTrue: true },
-    { text: "Le verbe est toujours au début de la phrase.", isTrue: false },
-    { text: "On met un point à la fin d’une phrase.", isTrue: true },
-  ],
-  dictee: [
-    { text: "On entend toujours toutes les lettres d’un mot.", isTrue: false },
-    { text: "On met un s au pluriel des noms en général.", isTrue: true },
-  ],
-  sciences: [
-    { text: "La Terre tourne autour du Soleil.", isTrue: true },
-    { text: "Les poissons respirent avec des poumons.", isTrue: false },
-  ],
-  histoire: [
-    { text: "Les hommes préhistoriques vivaient dans des grottes.", isTrue: true },
-    { text: "L’Antiquité vient après le Moyen Âge.", isTrue: false },
-  ],
-  anglais: [
-    { text: "'Hello' veut dire 'Bonjour'.", isTrue: true },
-    { text: "'Dog' veut dire 'Chat'.", isTrue: false },
-  ],
-  general: [
-    { text: "À l’école, on doit respecter les autres.", isTrue: true },
-    { text: "On peut crier tout le temps en classe.", isTrue: false },
-  ],
-};
 
-const getWordsForSubject = (matiere) => {
-  return WORDS_BY_SUBJECT[matiere] || WORDS_BY_SUBJECT.general;
-};
+const FrenchVerbGame = ({ onClose, onWin }) => {
+  const QUESTIONS = [
+    {
+      sentence: "Le chat mange une souris.",
+      words: ["Le", "chat", "mange", "une", "souris."],
+      verbIndex: 2,
+    },
+    {
+      sentence: "Les enfants jouent dans le parc.",
+      words: ["Les", "enfants", "jouent", "dans", "le", "parc."],
+      verbIndex: 2,
+    },
+    {
+      sentence: "Je regarde un dessin animé.",
+      words: ["Je", "regarde", "un", "dessin", "animé."],
+      verbIndex: 1,
+    },
+    {
+      sentence: "Nous écrivons une histoire.",
+      words: ["Nous", "écrivons", "une", "histoire."],
+      verbIndex: 1,
+    },
+    {
+      sentence: "Elle prend son cartable.",
+      words: ["Elle", "prend", "son", "cartable."],
+      verbIndex: 1,
+    },
+  ];
 
-const getStatementsForSubject = (matiere) => {
-  return STATEMENTS_BY_SUBJECT[matiere] || STATEMENTS_BY_SUBJECT.general;
-};
+  const totalQuestions = QUESTIONS.length;
+  const [index, setIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+  const [finished, setFinished] = useState(false);
 
-const PenduGame = ({ matiere, theme, onClose, onWin }) => {
-  const [word, setWord] = useState("");
-  const [guessedLetters, setGuessedLetters] = useState([]);
-  const [attemptsLeft, setAttemptsLeft] = useState(8);
-  const [gameOver, setGameOver] = useState(false);
-  const [won, setWon] = useState(false);
+  const current = QUESTIONS[index];
 
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-  const initGame = () => {
-    const words = getWordsForSubject(matiere);
-    const random = words[Math.floor(Math.random() * words.length)] || "ecole";
-    setWord(random.toUpperCase());
-    setGuessedLetters([]);
-    setAttemptsLeft(8);
-    setGameOver(false);
-    setWon(false);
-  };
-
-  useEffect(() => {
-    initGame();
-  }, [matiere, theme]);
-
-  const handleGuess = (letter) => {
-    if (gameOver || guessedLetters.includes(letter)) return;
-    const newGuessed = [...guessedLetters, letter];
-    setGuessedLetters(newGuessed);
-
-    if (!word.includes(letter)) {
-      const newAttempts = attemptsLeft - 1;
-      setAttemptsLeft(newAttempts);
-      if (newAttempts <= 0) {
-        setGameOver(true);
-        setWon(false);
-      }
+  const handleWordClick = (wordIndex) => {
+    if (finished) return;
+    const isCorrect = wordIndex === current.verbIndex;
+    if (isCorrect) {
+      setScore((s) => s + 1);
+      setFeedback({ correct: true, message: "Bravo, tu as trouvé le verbe ! 🎉" });
     } else {
-      const allRevealed = word
-        .split("")
-        .every((l) => l === " " || newGuessed.includes(l));
-      if (allRevealed) {
-        setGameOver(true);
-        setWon(true);
-        onWin(25);
-      }
+      setFeedback({ correct: false, message: "Ce n'est pas le verbe conjugué, essaie encore !" });
     }
+
+    setTimeout(() => {
+      setFeedback(null);
+      if (index + 1 >= totalQuestions) {
+        setFinished(true);
+        const earnedPoints = (score + (isCorrect ? 1 : 0)) * 3;
+        onWin(earnedPoints);
+      } else {
+        setIndex((i) => i + 1);
+      }
+    }, 800);
   };
 
   const handleClose = () => {
     onClose();
   };
 
-  const maskedWord = word
-    .split("")
-    .map((l) => (l === " " ? " " : guessedLetters.includes(l) ? l : "_"))
-    .join(" ");
+  if (finished) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full text-center">
+          <h2 className="text-xl font-bold mb-2">Jeu terminé !</h2>
+          <div className="text-5xl mb-3">🧠</div>
+          <p className="text-sm mb-2">
+            Tu as trouvé le verbe dans {score}/{totalQuestions} phrase(s).
+          </p>
+          <p className="text-sm text-yellow-600 mb-4">
+            Tu gagnes <strong>{score * 3} ⭐</strong> !
+          </p>
+          <button
+            onClick={handleClose}
+            className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -629,7 +665,7 @@ const PenduGame = ({ matiere, theme, onClose, onWin }) => {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-purple-600" />
-            <h2 className="text-lg font-bold">Jeu du pendu</h2>
+            <h2 className="text-lg font-bold">Trouve le verbe</h2>
           </div>
           <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-6 h-6" />
@@ -637,46 +673,35 @@ const PenduGame = ({ matiere, theme, onClose, onWin }) => {
         </div>
 
         <p className="text-xs text-gray-500 mb-2">
-          Mots liés à : <span className="font-semibold">{matiere || "ta matière"}</span>
+          Clique sur le <span className="font-semibold">verbe conjugué</span> dans la phrase.
         </p>
 
-        <div className="flex flex-col items-center mb-4">
-          <div className="text-2xl tracking-widest font-mono mb-2">{maskedWord}</div>
-          <p className="text-sm text-gray-600">Essais restants : {attemptsLeft}</p>
-        </div>
+        <p className="text-sm text-gray-700 mb-4">
+          Phrase {index + 1}/{totalQuestions}
+        </p>
 
-        <div className="grid grid-cols-7 gap-1 mb-4">
-          {alphabet.map((letter) => {
-            const disabled = guessedLetters.includes(letter) || gameOver;
-            return (
+        <div className="p-4 bg-purple-50 rounded-2xl mb-4">
+          <p className="text-base text-gray-800 mb-3">{current.sentence}</p>
+          <div className="flex flex-wrap gap-2">
+            {current.words.map((w, i) => (
               <button
-                key={letter}
-                onClick={() => handleGuess(letter)}
-                disabled={disabled}
-                className={`text-xs py-1 rounded-md border ${
-                  disabled
-                    ? "bg-gray-200 text-gray-400 border-gray-200"
-                    : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
-                }`}
+                key={i}
+                onClick={() => handleWordClick(i)}
+                className="px-3 py-1 bg-white hover:bg-purple-100 border border-purple-200 rounded-full text-sm"
               >
-                {letter}
+                {w}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        {gameOver && (
-          <div className={`p-3 rounded-xl text-center mb-3 ${won ? "bg-green-50" : "bg-red-50"}`}>
-            <p className="text-sm">
-              {won ? "Bravo, tu as trouvé le mot ! ⭐" : `Dommage, le mot était : ${word}`}
-            </p>
-            {won && <p className="text-xs text-gray-600 mt-1">+25 étoiles gagnées 🎉</p>}
-          </div>
-        )}
-
-        {!gameOver && (
-          <p className="text-xs text-gray-500 text-center">
-            Trouve le mot avant de perdre tous tes essais !
+        {feedback && (
+          <p
+            className={`text-sm font-semibold text-center ${
+              feedback.correct ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {feedback.message}
           </p>
         )}
       </div>
@@ -684,158 +709,64 @@ const PenduGame = ({ matiere, theme, onClose, onWin }) => {
   );
 };
 
-const VraiFauxGame = ({ matiere, theme, onClose, onWin, title = "Vrai ou Faux" }) => {
-  const [index, setIndex] = useState(0);
-  const [score, setScore] = useState(0);
+
+const EnglishMemoryGame = ({ onClose, onWin }) => {
+  const PAIRS = [
+    { en: "cat", fr: "chat" },
+    { en: "dog", fr: "chien" },
+    { en: "apple", fr: "pomme" },
+    { en: "house", fr: "maison" },
+  ];
+
+  const [cards, setCards] = useState([]);
+  const [flipped, setFlipped] = useState([]);
+  const [matched, setMatched] = useState([]);
+  const [moves, setMoves] = useState(0);
   const [finished, setFinished] = useState(false);
-  const [feedback, setFeedback] = useState(null);
-
-  const statements = getStatementsForSubject(matiere);
-  const totalQuestions = Math.min(10, statements.length);
-
-  const current = statements[index % statements.length];
-
-  const answer = (value) => {
-    if (finished) return;
-    const isCorrect = value === current.isTrue;
-    if (isCorrect) {
-      setScore((s) => s + 1);
-      setFeedback("Bravo, c'est vrai ! ⭐");
-    } else {
-      setFeedback(current.isTrue ? "C'était vrai !" : "C'était faux !");
-    }
-
-    if (index + 1 >= totalQuestions) {
-      setFinished(true);
-      const pts = (score + (isCorrect ? 1 : 0)) * 3;
-      onWin(pts);
-    } else {
-      setTimeout(() => {
-        setIndex((i) => i + 1);
-        setFeedback(null);
-      }, 800);
-    }
-  };
-
-  const handleClose = () => {
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-purple-600" />
-            <h2 className="text-lg font-bold">{title}</h2>
-          </div>
-          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <p className="text-xs text-gray-500 mb-2">
-          Questions liées à : <span className="font-semibold">{matiere || "ta matière"}</span>
-        </p>
-
-        {!finished ? (
-          <>
-            <p className="text-sm text-gray-700 mb-4">
-              Question {index + 1}/{totalQuestions}
-            </p>
-            <div className="p-4 bg-purple-50 rounded-2xl mb-4">
-              <p className="text-base text-gray-800">{current.text}</p>
-            </div>
-
-            <div className="flex gap-3 mb-4">
-              <button
-                onClick={() => answer(true)}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-xl"
-              >
-                Vrai
-              </button>
-              <button
-                onClick={() => answer(false)}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl"
-              >
-                Faux
-              </button>
-            </div>
-
-            {feedback && (
-              <p className="text-sm text-center text-gray-700 mb-2">{feedback}</p>
-            )}
-
-            <p className="text-xs text-gray-500 text-center">
-              Réponds le mieux possible, chaque bonne réponse te donnera des étoiles !
-            </p>
-          </>
-        ) : (
-          <div className="text-center">
-            <p className="text-lg font-bold mb-2">Quiz terminé ! 🎉</p>
-            <p className="text-sm text-gray-700 mb-2">
-              Tu as eu {score}/{totalQuestions} bonnes réponses.
-            </p>
-            <p className="text-xs text-gray-500 mb-4">Tes étoiles ont été ajoutées à ton compte.</p>
-            <button
-              onClick={handleClose}
-              className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
-            >
-              Fermer
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-const MathCompareGame = ({ matiere, theme, onClose, onWin }) => {
-  const [round, setRound] = useState(1);
-  const [score, setScore] = useState(0);
-  const [a, setA] = useState(0);
-  const [b, setB] = useState(0);
-  const [feedback, setFeedback] = useState(null);
-  const [finished, setFinished] = useState(false);
-
-  const totalRounds = 5;
-
-  const newRound = () => {
-    let x = Math.floor(Math.random() * 99) + 1;
-    let y = Math.floor(Math.random() * 99) + 1;
-    if (x === y) y = (y % 99) + 1;
-    setA(x);
-    setB(y);
-  };
 
   useEffect(() => {
-    newRound();
+    const initialCards = [];
+    PAIRS.forEach((pair, index) => {
+      initialCards.push(
+        { id: index * 2, label: pair.en, pairId: index },
+        { id: index * 2 + 1, label: pair.fr, pairId: index }
+      );
+    });
+    // Shuffle
+    for (let i = initialCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [initialCards[i], initialCards[j]] = [initialCards[j], initialCards[i]];
+    }
+    setCards(initialCards);
   }, []);
 
-  const handleChoice = (choice) => {
+  const handleCardClick = (card) => {
     if (finished) return;
-    const correct = a > b ? "a" : "b";
-    const isCorrect = choice === correct;
+    if (flipped.find((c) => c.id === card.id)) return;
+    if (matched.includes(card.id)) return;
+    if (flipped.length === 2) return;
 
-    if (isCorrect) {
-      setScore((s) => s + 1);
-      setFeedback("Bravo, tu as choisi le plus grand nombre ! ⭐");
-    } else {
-      setFeedback("Ce n'était pas le plus grand nombre, essaie encore !");
-    }
+    const newFlipped = [...flipped, card];
+    setFlipped(newFlipped);
 
-    if (round >= totalRounds) {
-      const finalScore = isCorrect ? score + 1 : score;
-      setFinished(true);
-      // Win condition : au moins 3 bonnes réponses sur 5
-      if (finalScore >= 3) {
-        onWin();
+    if (newFlipped.length === 2) {
+      setMoves((m) => m + 1);
+      const [c1, c2] = newFlipped;
+      if (c1.pairId === c2.pairId) {
+        setTimeout(() => {
+          setMatched((prev) => [...prev, c1.id, c2.id]);
+          setFlipped([]);
+          if (matched.length + 2 >= cards.length) {
+            const earnedPoints = PAIRS.length * 4;
+            setFinished(true);
+            onWin(earnedPoints);
+          }
+        }, 600);
+      } else {
+        setTimeout(() => {
+          setFlipped([]);
+        }, 800);
       }
-    } else {
-      setTimeout(() => {
-        setRound((r) => r + 1);
-        setFeedback(null);
-        newRound();
-      }, 800);
     }
   };
 
@@ -843,246 +774,71 @@ const MathCompareGame = ({ matiere, theme, onClose, onWin }) => {
     onClose();
   };
 
+  const allMatched = matched.length === cards.length && cards.length > 0;
+
+  if (finished || allMatched) {
+    const earnedPoints = PAIRS.length * 4;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full text-center">
+          <h2 className="text-xl font-bold mb-2">Bravo ! 🎉</h2>
+          <div className="text-5xl mb-3">🔤</div>
+          <p className="text-sm mb-2">Tu as retrouvé toutes les paires en {moves} coups.</p>
+          <p className="text-sm text-yellow-600 mb-4">
+            Tu gagnes <strong>{earnedPoints} ⭐</strong> !
+          </p>
+          <button
+            onClick={handleClose}
+            className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-purple-600" />
-            <h2 className="text-lg font-bold">Comparaison de nombres</h2>
+            <BookOpen className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg font-bold">Memory anglais</h2>
           </div>
           <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        {!finished ? (
-          <>
-            <p className="text-sm text-gray-700 mb-2">
-              Manche {round}/{totalRounds} – Choisis le plus grand nombre :
-            </p>
-            <div className="flex justify-center gap-4 mb-4">
-              <button
-                onClick={() => handleChoice("a")}
-                className="flex-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl py-3 text-xl font-bold"
-              >
-                {a}
-              </button>
-              <button
-                onClick={() => handleChoice("b")}
-                className="flex-1 bg-green-50 hover:bg-green-100 border border-green-200 rounded-2xl py-3 text-xl font-bold"
-              >
-                {b}
-              </button>
-            </div>
-            {feedback && <p className="text-sm text-center text-gray-700 mb-2">{feedback}</p>}
-            <p className="text-xs text-gray-500 text-center">
-              Tu as {score} bonne(s) réponse(s) pour l'instant.
-            </p>
-          </>
-        ) : (
-          <div className="text-center">
-            <p className="text-lg font-bold mb-2">Partie terminée !</p>
-            <p className="text-sm text-gray-700 mb-2">
-              Tu as eu {score}/{totalRounds} bonnes réponses.
-            </p>
-            <p className="text-xs text-gray-500 mb-4">
-              Si tu as au moins 3 bonnes réponses, tu gagnes des étoiles grâce à ce mini-jeu.
-            </p>
-            <button
-              onClick={handleClose}
-              className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
-            >
-              Fermer
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const DrawingCanvas = ({ onClose, onValidate }) => {
-  const canvasRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [brushColor, setBrushColor] = useState("#000000");
-  const [brushSize, setBrushSize] = useState(4);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.lineCap = "round";
-  }, []);
-
-  const getPos = (e) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    if (e.touches && e.touches[0]) {
-      return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top,
-      };
-    }
-    return {
-      x: e.nativeEvent.offsetX,
-      y: e.nativeEvent.offsetY,
-    };
-  };
-
-  const startDrawing = (e) => {
-    e.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const { x, y } = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.strokeStyle = brushColor;
-    ctx.lineWidth = brushSize;
-    setIsDrawing(true);
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    e.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const { x, y } = getPos(e);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = (e) => {
-    if (!isDrawing) return;
-    e && e.preventDefault();
-    setIsDrawing(false);
-  };
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  };
-
-  const handleDownload = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png");
-    link.download = "mon-dessin.png";
-    link.click();
-  };
-
-  const handleValidate = () => {
-    onValidate();
-  };
-
-  const colors = ["#000000", "#444444", "#ff0000", "#ff7f00", "#ffff00", "#00a000", "#00bfff", "#0000ff", "#4b0082", "#aa00aa", "#ff1493"];
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl p-4 sm:p-6 max-w-3xl w-full">
-        <div className="flex justify-between items-center mb-3 sm:mb-4">
-          <div className="flex items-center gap-2">
-            <Palette className="w-5 h-5 text-purple-600" />
-            <h2 className="text-base sm:text-lg font-bold">Atelier de dessin</h2>
-          </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <p className="text-xs sm:text-sm text-gray-600 mb-3">
-          Dessine librement pour travailler les couleurs, les mélanges et la palette graphique. 🎨
+        <p className="text-xs text-gray-500 mb-3">
+          Retourne les cartes et retrouve les paires <span className="font-semibold">mot anglais / mot français</span>.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 flex justify-center items-center">
-            <canvas
-              ref={canvasRef}
-              width={700}
-              height={400}
-              className="border border-gray-300 rounded-xl shadow-inner touch-none bg-white"
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={stopDrawing}
-              onMouseLeave={stopDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={stopDrawing}
-            />
-          </div>
-
-          <div className="w-full sm:w-48 flex flex-col gap-3">
-            <div>
-              <p className="text-xs sm:text-sm font-semibold mb-1">Couleur du pinceau</p>
-              <div className="flex flex-wrap gap-2">
-                {colors.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setBrushColor(c)}
-                    className={`w-7 h-7 rounded-full border-2 ${
-                      brushColor === c ? "border-purple-500" : "border-transparent"
-                    }`}
-                    style={{ backgroundColor: c }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs sm:text-sm font-semibold mb-1">Taille du pinceau</p>
-              <input
-                type="range"
-                min="2"
-                max="16"
-                value={brushSize}
-                onChange={(e) => setBrushSize(parseInt(e.target.value, 10))}
-                className="w-full"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2 mt-2">
+        <div className="grid grid-cols-3 gap-3">
+          {cards.map((card) => {
+            const isFlipped = !!flipped.find((c) => c.id === card.id) || matched.includes(card.id);
+            return (
               <button
-                onClick={handleDownload}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
+                key={card.id}
+                onClick={() => handleCardClick(card)}
+                className={`h-16 rounded-xl border text-sm font-bold flex items-center justify-center ${
+                  isFlipped ? "bg-indigo-100 border-indigo-400 text-indigo-700" : "bg-gray-100 border-gray-300 text-gray-400"
+                }`}
               >
-                <Download className="w-4 h-4" />
-                Enregistrer mon dessin (PNG)
+                {isFlipped ? card.label : "?"}
               </button>
-              <button
-                onClick={clearCanvas}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
-              >
-                <Trash2 className="w-4 h-4" />
-                Effacer le dessin
-              </button>
-              <button
-                onClick={handleValidate}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs sm:text-sm font-semibold"
-              >
-                <PenTool className="w-4 h-4" />
-                Valider mon dessin (+étoiles et note)
-              </button>
-            </div>
-          </div>
+            );
+          })}
         </div>
+
+        <p className="text-xs text-gray-500 mt-3 text-right">Coups : {moves}</p>
       </div>
     </div>
   );
 };
 
-
-
-const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
+const MiniGamesPanel = ({ onClose, onSelectGame }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full">
@@ -1096,56 +852,26 @@ const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
           </button>
         </div>
 
-        <p className="text-xs text-gray-500 mb-3">
-          Chaque partie coûte <span className="font-semibold">10 étoiles</span>. Certains jeux se débloquent avec ton niveau.
-        </p>
-
         <div className="space-y-3">
-          {MINI_GAMES.map((game) => {
-            const requiredLevel = game.levelRequired || 1;
-            const unlocked = level >= requiredLevel;
-            const enoughPoints = points >= 10;
-            const disabled = !unlocked || !enoughPoints;
-
-            return (
-              <button
-                key={game.id}
-                onClick={() => onSelectGame(game.id)}
-                disabled={disabled}
-                className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${
-                  disabled
-                    ? "border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
-                    : "border-gray-200 hover:border-purple-400 hover:bg-purple-50"
-                }`}
-              >
-                <div className="text-4xl">{game.emoji}</div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg">{game.nom}</h3>
-                  <p className="text-sm text-gray-600">{game.desc}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
-                      <Star className="w-3 h-3" /> 10 étoiles / partie
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
-                      <Trophy className="w-3 h-3" /> Niveau {requiredLevel}+
-                    </span>
-                    {!unlocked && (
-                      <span className="text-[11px] text-gray-500">Atteins le niveau {requiredLevel} pour débloquer ce jeu.</span>
-                    )}
-                    {unlocked && !enoughPoints && (
-                      <span className="text-[11px] text-red-500">Pas assez d'étoiles pour jouer.</span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+          {MINI_GAMES.map((game) => (
+            <button
+              key={game.id}
+              onClick={() => onSelectGame(game.id)}
+              className="w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 border-gray-200 hover:border-purple-400 hover:bg-purple-50"
+            >
+              <div className="text-4xl">{game.emoji}</div>
+              <div>
+                <h3 className="font-bold text-lg">{game.nom}</h3>
+                <p className="text-sm text-gray-600">{game.desc}</p>
+                
+              </div>
+            </button>
+          ))}
         </div>
       </div>
     </div>
   );
 };
-
 
 // ==================== MAIN COMPONENT ====================
 export default function ProfIA() {
@@ -1163,11 +889,9 @@ export default function ProfIA() {
 
   // Persisted state
   const [points, setPoints] = useLocalStorage("profai-points", 0);
-  const [xp, setXp] = useLocalStorage("profai-xp", 0);
   const [streak, setStreak] = useLocalStorage("profai-streak", 0);
   const [lastVisit, setLastVisit] = useLocalStorage("profai-lastVisit", "");
   const [dailyMissions, setDailyMissions] = useLocalStorage("profai-missions", generateDailyMissions());
-  const [completedMissions, setCompletedMissions] = useLocalStorage("profai-completedMissions", []);
   const [selectedAvatar, setSelectedAvatar] = useLocalStorage("profai-avatar", "🐱");
   const [selectedColor, setSelectedColor] = useLocalStorage("profai-color", "bg-blue-500");
   const [unlockedAvatars, setUnlockedAvatars] = useLocalStorage("profai-unlockedAvatars", ["cat", "dog", "rabbit"]);
@@ -1180,11 +904,7 @@ export default function ProfIA() {
   const [showMissions, setShowMissions] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
   const [showMiniGames, setShowMiniGames] = useState(false);
-  const [showDrawing, setShowDrawing] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
-  const [lastPointsGain, setLastPointsGain] = useState(0);
-  const [showPointsPop, setShowPointsPop] = useState(false);
-
 
   // Refs
   const fileInputRef = useRef(null);
@@ -1232,192 +952,37 @@ export default function ProfIA() {
   };
 
   const updateMissionProgress = (type, amount) => {
-    setDailyMissions((prev) => {
-      const updatedMissions = prev.missions.map((m) => {
-        if (m.type !== type) return m;
-        const newCurrent = Math.min(m.current + amount, m.target);
-        return { ...m, current: newCurrent };
-      });
-
-      // Détecter les missions qui viennent d'être complétées
-      updatedMissions.forEach((m, index) => {
-        const prevMission = prev.missions[index];
-        if (m.current >= m.target && prevMission.current < prevMission.target) {
-          setCompletedMissions((prevCompleted) => {
-            if (prevCompleted.find((cm) => cm.id === m.id && cm.date === prev.date)) {
-              return prevCompleted;
-            }
-            return [
-              ...prevCompleted,
-              {
-                id: m.id,
-                title: m.title,
-                reward: m.reward,
-                emoji: m.emoji,
-                date: prev.date,
-              },
-            ];
-          });
-        }
-      });
-
-      return {
-        ...prev,
-        missions: updatedMissions,
-      };
-    });
+    setDailyMissions((prev) => ({
+      ...prev,
+      missions: prev.missions.map((m) => (m.type === type ? { ...m, current: Math.min(m.current + amount, m.target) } : m)),
+    }));
   };
 
   const addPoints = (amount) => {
-    // XP : ne diminue jamais, sert aux niveaux et badges
-    setXp((prevXp) => {
-      const newXp = prevXp + amount;
+    const newPoints = points + amount;
+    const oldBadge = BADGES.filter((b) => b.points <= points).pop();
+    const newBadge = BADGES.filter((b) => b.points <= newPoints).pop();
 
-      const thresholds = {
-        1: 0,
-        2: 150,
-        3: 300,
-        4: 500,
-        5: 1000,
-        6: 2000,
-        7: 3000,
-        8: 5000,
-        9: 7500,
-        10: 10000,
-        11: 12000,
-        12: 14000,
-        13: 16000,
-        14: 18000,
-        15: 20000,
-        16: 23000,
-        17: 26000,
-        18: 29000,
-        19: 32000,
-        20: 35000,
-      };
+    setPoints(newPoints);
 
-      const getLevelFromXp = (xpValue) => {
-        let lvl = 1;
-        for (let i = 1; i <= 20; i++) {
-          if (xpValue >= thresholds[i]) {
-            lvl = i;
-          }
-        }
-        return lvl;
-      };
+    if (newBadge && newBadge.id !== oldBadge?.id) {
+      celebrate(`🎉 Nouveau badge : ${newBadge.nom} ! 🎉`);
+    } else {
+      celebrate(`+${amount} étoiles ! ⭐`);
+    }
 
-      const oldBadge = BADGES.filter((b) => b.points <= prevXp).pop();
-      const newBadge = BADGES.filter((b) => b.points <= newXp).pop();
-
-      const oldLevel = getLevelFromXp(prevXp);
-      const newLevel = getLevelFromXp(newXp);
-
-      if (newBadge && newBadge.id !== oldBadge?.id) {
-        celebrate(`🎉 Nouveau badge : ${newBadge.nom} ! 🎉`);
-      } else if (newLevel > oldLevel) {
-        celebrate(`🌟 Niveau ${newLevel} atteint ! 🌟`);
-      } else {
-        celebrate(`+${amount} XP ! ⭐`);
-      }
-
-      return newXp;
-    });
-
-    // Étoiles : monnaie qui peut augmenter ou diminuer
-    setPoints((prevPoints) => prevPoints + amount);
-
-    setLastPointsGain(amount);
-    setShowPointsPop(true);
-    setTimeout(() => setShowPointsPop(false), 1200);
-
-    // Missions générales
     updateMissionProgress("questions", 1);
-    updateMissionProgress("earn-points", amount);
-
-    // Missions par matière
     if (matiere === "maths") {
       updateMissionProgress("maths", 1);
     }
-    if (matiere === "francais" || matiere === "dictee") {
-      updateMissionProgress("francais", 1);
-    }
-    if (matiere === "sciences") {
-      updateMissionProgress("sciences", 1);
-    }
-    if (matiere === "histoire" || matiere === "geographie") {
-      updateMissionProgress("histoire", 1);
-    }
-    if (matiere === "anglais") {
-      updateMissionProgress("anglais", 1);
-    }
   };
 
-  const getCurrentBadge = () => BADGES.filter((b) => b.points <= xp).pop() || BADGES[0];
-  const getNextBadge = () => BADGES.find((b) => b.points > xp);
-
-  const getLevel = () => {
-    const thresholds = {
-      1: 0,
-      2: 150,
-      3: 300,
-      4: 500,
-      5: 1000,
-      6: 2000,
-      7: 3000,
-      8: 5000,
-      9: 7500,
-      10: 10000,
-      11: 12000,
-      12: 14000,
-      13: 16000,
-      14: 18000,
-      15: 20000,
-      16: 23000,
-      17: 26000,
-      18: 29000,
-      19: 32000,
-      20: 35000,
-    };
-    let lvl = 1;
-    for (let i = 1; i <= 20; i++) {
-      if (xp >= thresholds[i]) {
-        lvl = i;
-      }
-    }
-    return lvl;
-  };
-
-  const getNextLevelPoints = () => {
-    const level = getLevel();
-    if (level >= 20) return null;
-    const thresholds = {
-      1: 0,
-      2: 150,
-      3: 300,
-      4: 500,
-      5: 1000,
-      6: 2000,
-      7: 3000,
-      8: 5000,
-      9: 7500,
-      10: 10000,
-      11: 12000,
-      12: 14000,
-      13: 16000,
-      14: 18000,
-      15: 20000,
-      16: 23000,
-      17: 26000,
-      18: 29000,
-      19: 32000,
-      20: 35000,
-    };
-    return thresholds[level + 1] ?? null;
-  };
-
+  const getCurrentBadge = () => BADGES.filter((b) => b.points <= points).pop() || BADGES[0];
+  const getNextBadge = () => BADGES.find((b) => b.points > points);
 
   const handleUnlock = (type, item) => {
     if (points >= item.cost) {
+      setPoints(points - item.cost);
       if (type === "avatar") {
         setUnlockedAvatars([...unlockedAvatars, item.id]);
         setSelectedAvatar(item.emoji);
@@ -1431,29 +996,9 @@ export default function ProfIA() {
     }
   };
 
-  const handleGameWin = () => {
-    addPoints(20);
-    updateMissionProgress("mini-jeux", 1);
+  const handleGameWin = (earnedPoints) => {
+    addPoints(earnedPoints);
     setActiveGame(null);
-  };
-
-  const handleStartGame = (gameId) => {
-    const game = MINI_GAMES.find((g) => g.id === gameId);
-    const requiredLevel = game?.levelRequired || 1;
-    const currentLevel = getLevel();
-
-    if (currentLevel < requiredLevel) {
-      celebrate(`Ce mini-jeu se débloque au niveau ${requiredLevel}. Tu es actuellement niveau ${currentLevel}. 💪`);
-      return;
-    }
-
-    if (points < 10) {
-      celebrate("Tu n'as pas assez d'étoiles pour jouer. Il faut 10 étoiles par partie. ⭐");
-      return;
-    }
-
-    setPoints((prev) => prev - 10);
-    setActiveGame(gameId);
   };
 
   useEffect(() => {
@@ -1715,7 +1260,7 @@ Bravo pour ton travail ! 💪`,
           </div>
         )}
 
-        {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} completedMissions={completedMissions} onClose={() => setShowMissions(false)} />}
+        {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} onClose={() => setShowMissions(false)} />}
         {showBadges && <BadgesPanel points={points} onClose={() => setShowBadges(false)} />}
         {showAvatar && (
           <AvatarSelector
@@ -1724,8 +1269,6 @@ Bravo pour ton travail ! 💪`,
             unlockedAvatars={unlockedAvatars}
             unlockedColors={unlockedColors}
             points={points}
-            showPointsPop={showPointsPop}
-            lastPointsGain={lastPointsGain}
             onSelectAvatar={setSelectedAvatar}
             onSelectColor={setSelectedColor}
             onUnlock={handleUnlock}
@@ -1735,54 +1278,20 @@ Bravo pour ton travail ! 💪`,
         {showMiniGames && (
           <MiniGamesPanel
             onClose={() => setShowMiniGames(false)}
-            level={getLevel()}
-            points={points}
             onSelectGame={(gameId) => {
               setShowMiniGames(false);
-              handleStartGame(gameId);
+              setActiveGame(gameId);
             }}
           />
         )}
         {activeGame === "calcul-mental" && (
-          <CalculMentalGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
+          <CalculMentalGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />
         )}
-        {activeGame === "pendu" && (
-          <PenduGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
+        {activeGame === "francais-verbe" && (
+          <FrenchVerbGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />
         )}
-        {activeGame === "vrai-faux" && (
-          <VraiFauxGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
-        )}
-        {activeGame === "quiz-rapide" && (
-          <VraiFauxGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-            title="Quiz Rapide"
-          />
-        )}
-        {activeGame === "comparaison-maths" && (
-          <MathCompareGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
+        {activeGame === "anglais-memory" && (
+          <EnglishMemoryGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />
         )}
       </div>
     );
@@ -1852,7 +1361,7 @@ Bravo pour ton travail ! 💪`,
       )}
 
       {showBadges && <BadgesPanel points={points} onClose={() => setShowBadges(false)} />}
-      {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} completedMissions={completedMissions} onClose={() => setShowMissions(false)} />}
+      {showMissions && <DailyMissionsPanel missions={dailyMissions.missions} onClose={() => setShowMissions(false)} />}
       {showMiniGames && (
         <MiniGamesPanel
           onClose={() => setShowMiniGames(false)}
@@ -1862,63 +1371,14 @@ Bravo pour ton travail ! 💪`,
           }}
         />
       )}
-      {showDrawing && (
-        <DrawingCanvas
-          onClose={() => setShowDrawing(false)}
-          onValidate={() => {
-            addPoints(10);
-            updateMissionProgress("arts", 1);
-            // Ajoute une note pour le dessin dans le chat
-            const note = 8 + Math.floor(Math.random() * 3); // 8, 9 ou 10
-            const feedbackMessage = {
-              role: "assistant",
-              content: `🎨 Bravo pour ton dessin en palette graphique ! Je te donne la note de ${note}/10 pour ton travail sur les couleurs. Continue comme ça !`,
-            };
-            setMessages((prev) => [...prev, feedbackMessage]);
-            setShowDrawing(false);
-          }}
-        />
-      )}
       {activeGame === "calcul-mental" && (
-          <CalculMentalGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
+          <CalculMentalGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />
         )}
-        {activeGame === "pendu" && (
-          <PenduGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
+        {activeGame === "francais-verbe" && (
+          <FrenchVerbGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />
         )}
-        {activeGame === "vrai-faux" && (
-          <VraiFauxGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
-        )}
-        {activeGame === "quiz-rapide" && (
-          <VraiFauxGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-            title="Quiz Rapide"
-          />
-        )}
-        {activeGame === "comparaison-maths" && (
-          <MathCompareGame
-            matiere={matiere}
-            theme={themeSelectionne}
-            onClose={() => setActiveGame(null)}
-            onWin={handleGameWin}
-          />
+        {activeGame === "anglais-memory" && (
+          <EnglishMemoryGame onClose={() => setActiveGame(null)} onWin={handleGameWin} />
         )}
 
       <div className={`${currentMatiere.color} text-white shadow-lg sticky top-0 z-40`}>
@@ -1942,38 +1402,12 @@ Bravo pour ton travail ! 💪`,
               <button onClick={() => setShowMiniGames(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              {matiere === "arts-plastiques" && themeSelectionne === "palette-graphique" && (
-                <button
-                  onClick={() => setShowDrawing(true)}
-                  className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors"
-                >
-                  <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              )}
               <button onClick={() => setShowBadges(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col items-start gap-1">
-                  <div className="flex items-center gap-1 bg-indigo-100 text-indigo-700 px-2 sm:px-3 py-1 rounded-full">
-                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="font-bold text-xs sm:text-sm">Niv. {getLevel()}</span>
-                  </div>
-                  <div className="w-20 sm:w-24 h-1.5 bg-indigo-200 rounded-full overflow-hidden">
-                    {(() => {
-                      const target = getNextLevelPoints();
-                      if (!target) {
-                        return <div className="h-full w-full bg-indigo-500" />;
-                      }
-                      const percent = Math.min(100, Math.round((xp / target) * 100));
-                      return <div className="h-full bg-indigo-500" style={{ width: `${percent}%` }} />;
-                    })()}
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 bg-yellow-400 text-gray-800 px-2 sm:px-3 py-1 rounded-full">
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="font-bold text-xs sm:text-sm">{points}</span>
-                </div>
+              <div className="flex items-center gap-1 bg-yellow-400 text-gray-800 px-2 sm:px-3 py-1 rounded-full">
+                <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="font-bold text-xs sm:text-sm">{points}</span>
               </div>
               <button onClick={resetChat} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
