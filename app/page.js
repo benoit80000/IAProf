@@ -26,6 +26,7 @@ import {
   PenTool,
   Download,
   Calculator,
+  KeyRound,
 } from "lucide-react";
 
 import useLocalStorage from "./hooks/useLocalStorage";
@@ -361,6 +362,71 @@ const BadgesPanel = ({ points, onClose }) => {
               </div>
             );
           })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CodePanel = ({ onClose, onAddPoints, onRemovePoints }) => {
+  const [value, setValue] = useState("10");
+  const parsed = parseInt(value, 10) || 0;
+
+  const handleAdd = () => {
+    if (parsed !== 0) onAddPoints(parsed);
+  };
+
+  const handleRemove = () => {
+    if (parsed !== 0) onRemovePoints(parsed);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <KeyRound className="w-6 h-6 text-purple-600" />
+            <h2 className="text-xl font-bold">Menu code</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <p className="text-xs text-gray-500 mb-3">
+          Ici tu peux ajouter ou retirer des étoiles manuellement (par exemple pour corriger ou récompenser un travail).
+        </p>
+
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium mb-1">Nombre d&apos;étoiles</label>
+            <input
+              type="number"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleAdd}
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-xl text-sm"
+            >
+              + Ajouter
+            </button>
+            <button
+              onClick={handleRemove}
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded-xl text-sm"
+            >
+              - Retirer
+            </button>
+          </div>
+
+          <p className="text-[11px] text-gray-400">
+            Astuce : tu peux par exemple donner des étoiles pour un travail fait hors de l&apos;application,
+            ou retirer des étoiles si besoin.
+          </p>
         </div>
       </div>
     </div>
@@ -1082,6 +1148,271 @@ const DrawingCanvas = ({ onClose, onValidate }) => {
 
 
 
+
+const FrenchVerbGame = ({ onClose, onWin }) => {
+  const QUESTIONS = [
+    {
+      sentence: "Le chat mange une souris.",
+      words: ["Le", "chat", "mange", "une", "souris."],
+      verbIndex: 2,
+    },
+    {
+      sentence: "Les enfants jouent dans le parc.",
+      words: ["Les", "enfants", "jouent", "dans", "le", "parc."],
+      verbIndex: 2,
+    },
+    {
+      sentence: "Je regarde un dessin animé.",
+      words: ["Je", "regarde", "un", "dessin", "animé."],
+      verbIndex: 1,
+    },
+    {
+      sentence: "Nous écrivons une histoire.",
+      words: ["Nous", "écrivons", "une", "histoire."],
+      verbIndex: 1,
+    },
+    {
+      sentence: "Elle prend son cartable.",
+      words: ["Elle", "prend", "son", "cartable."],
+      verbIndex: 1,
+    },
+  ];
+
+  const totalQuestions = QUESTIONS.length;
+  const [index, setIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+  const [finished, setFinished] = useState(false);
+
+  const current = QUESTIONS[index];
+
+  const handleWordClick = (wordIndex) => {
+    if (finished) return;
+    const isCorrect = wordIndex === current.verbIndex;
+    if (isCorrect) {
+      setScore((s) => s + 1);
+      setFeedback({ correct: true, message: "Bravo, tu as trouvé le verbe ! 🎉" });
+    } else {
+      setFeedback({ correct: false, message: "Ce n'est pas le verbe conjugué, essaie encore !" });
+    }
+
+    setTimeout(() => {
+      setFeedback(null);
+      if (index + 1 >= totalQuestions) {
+        setFinished(true);
+        onWin(); // Gestion des points par handleGameWin
+      } else {
+        setIndex((i) => i + 1);
+      }
+    }, 800);
+  };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  if (finished) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full text-center">
+          <h2 className="text-xl font-bold mb-2">Jeu terminé !</h2>
+          <div className="text-5xl mb-3">🧠</div>
+          <p className="text-sm mb-2">
+            Tu as trouvé le verbe dans {score}/{totalQuestions} phrase(s).
+          </p>
+          <p className="text-xs text-gray-500 mb-4">
+            Tu as gagné des étoiles et de l&apos;XP pour ce mini-jeu.
+          </p>
+          <button
+            onClick={handleClose}
+            className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-purple-600" />
+            <h2 className="text-lg font-bold">Trouve le verbe</h2>
+          </div>
+          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <p className="text-xs text-gray-500 mb-2">
+          Clique sur le <span className="font-semibold">verbe conjugué</span> dans la phrase.
+        </p>
+
+        <p className="text-sm text-gray-700 mb-4">
+          Phrase {index + 1}/{totalQuestions}
+        </p>
+
+        <div className="p-4 bg-purple-50 rounded-2xl mb-4">
+          <p className="text-base text-gray-800 mb-3">{current.sentence}</p>
+          <div className="flex flex-wrap gap-2">
+            {current.words.map((w, i) => (
+              <button
+                key={i}
+                onClick={() => handleWordClick(i)}
+                className="px-3 py-1 bg-white hover:bg-purple-100 border border-purple-200 rounded-full text-sm"
+              >
+                {w}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {feedback && (
+          <p
+            className={`text-sm font-semibold text-center ${
+              feedback.correct ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {feedback.message}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const EnglishMemoryGame = ({ onClose, onWin }) => {
+  const PAIRS = [
+    { en: "cat", fr: "chat" },
+    { en: "dog", fr: "chien" },
+    { en: "apple", fr: "pomme" },
+    { en: "house", fr: "maison" },
+  ];
+
+  const [cards, setCards] = useState([]);
+  const [flipped, setFlipped] = useState([]);
+  const [matched, setMatched] = useState([]);
+  const [moves, setMoves] = useState(0);
+  const [finished, setFinished] = useState(false);
+
+  useEffect(() => {
+    const initialCards = [];
+    PAIRS.forEach((pair, index) => {
+      initialCards.push(
+        { id: index * 2, label: pair.en, pairId: index },
+        { id: index * 2 + 1, label: pair.fr, pairId: index }
+      );
+    });
+    for (let i = initialCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [initialCards[i], initialCards[j]] = [initialCards[j], initialCards[i]];
+    }
+    setCards(initialCards);
+  }, []);
+
+  const handleCardClick = (card) => {
+    if (finished) return;
+    if (flipped.find((c) => c.id === card.id)) return;
+    if (matched.includes(card.id)) return;
+    if (flipped.length === 2) return;
+
+    const newFlipped = [...flipped, card];
+    setFlipped(newFlipped);
+
+    if (newFlipped.length === 2) {
+      setMoves((m) => m + 1);
+      const [c1, c2] = newFlipped;
+      if (c1.pairId === c2.pairId) {
+        setTimeout(() => {
+          setMatched((prev) => [...prev, c1.id, c2.id]);
+          setFlipped([]);
+          if (matched.length + 2 >= cards.length) {
+            setFinished(true);
+            onWin(); // Gestion des points par handleGameWin
+          }
+        }, 600);
+      } else {
+        setTimeout(() => {
+          setFlipped([]);
+        }, 800);
+      }
+    }
+  };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  const allMatched = matched.length === cards.length && cards.length > 0;
+
+  if (finished || allMatched) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full text-center">
+          <h2 className="text-xl font-bold mb-2">Bravo ! 🎉</h2>
+          <div className="text-5xl mb-3">🔤</div>
+          <p className="text-sm mb-2">Tu as retrouvé toutes les paires en {moves} coups.</p>
+          <p className="text-xs text-gray-500 mb-4">
+            Tu as gagné des étoiles et de l&apos;XP pour ce mini-jeu.
+          </p>
+          <button
+            onClick={handleClose}
+            className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-xl"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg font-bold">Memory anglais</h2>
+          </div>
+          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <p className="text-xs text-gray-500 mb-3">
+          Retourne les cartes et retrouve les paires{" "}
+          <span className="font-semibold">mot anglais / mot français</span>.
+        </p>
+
+        <div className="grid grid-cols-3 gap-3">
+          {cards.map((card) => {
+            const isFlipped =
+              !!flipped.find((c) => c.id === card.id) || matched.includes(card.id);
+            return (
+              <button
+                key={card.id}
+                onClick={() => handleCardClick(card)}
+                className={`h-16 rounded-xl border text-sm font-bold flex items-center justify-center ${
+                  isFlipped
+                    ? "bg-indigo-100 border-indigo-400 text-indigo-700"
+                    : "bg-gray-100 border-gray-300 text-gray-400"
+                }`}
+              >
+                {isFlipped ? card.label : "?"}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="text-xs text-gray-500 mt-3 text-right">Coups : {moves}</p>
+      </div>
+    </div>
+  );
+};
+
 const MiniGamesPanel = ({ onClose, onSelectGame, level, points }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -1181,6 +1512,7 @@ export default function ProfIA() {
   const [showAvatar, setShowAvatar] = useState(false);
   const [showMiniGames, setShowMiniGames] = useState(false);
   const [showDrawing, setShowDrawing] = useState(false);
+  const [showCodePanel, setShowCodePanel] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
   const [lastPointsGain, setLastPointsGain] = useState(0);
   const [showPointsPop, setShowPointsPop] = useState(false);
@@ -1743,6 +2075,13 @@ Bravo pour ton travail ! 💪`,
             }}
           />
         )}
+        {showCodePanel && (
+          <CodePanel
+            onClose={() => setShowCodePanel(false)}
+            onAddPoints={(amount) => setPoints((p) => p + amount)}
+            onRemovePoints={(amount) => setPoints((p) => Math.max(0, p - amount))}
+          />
+        )}
         {activeGame === "calcul-mental" && (
           <CalculMentalGame
             matiere={matiere}
@@ -1780,6 +2119,18 @@ Bravo pour ton travail ! 💪`,
           <MathCompareGame
             matiere={matiere}
             theme={themeSelectionne}
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
+        {activeGame === "francais-verbe" && (
+          <FrenchVerbGame
+            onClose={() => setActiveGame(null)}
+            onWin={handleGameWin}
+          />
+        )}
+        {activeGame === "anglais-memory" && (
+          <EnglishMemoryGame
             onClose={() => setActiveGame(null)}
             onWin={handleGameWin}
           />
@@ -1941,6 +2292,9 @@ Bravo pour ton travail ! 💪`,
               </button>
               <button onClick={() => setShowMiniGames(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
                 <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+              <button onClick={() => setShowCodePanel(true)} className="bg-white/20 hover:bg-white/30 rounded-xl p-2 transition-colors">
+                <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               {matiere === "arts-plastiques" && themeSelectionne === "palette-graphique" && (
                 <button

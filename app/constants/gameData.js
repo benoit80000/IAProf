@@ -50,6 +50,7 @@ export const THEMES_PAR_MATIERE = {
     { id: "vocabulaire-quotidien", nom: "Vocabulaire du quotidien", emoji: "🗣️" },
     { id: "verbes-irreguliers", nom: "Verbes irréguliers", emoji: "📚" },
     { id: "compréhension-orale", nom: "Compréhension orale", emoji: "🎧" },
+    { id: "dictionnaire", nom: "Dictionnaire", emoji: "📖" },
   ],
   sciences: [
     { id: "corps-humain", nom: "Corps humain", emoji: "🧍" },
@@ -140,6 +141,8 @@ export const MINI_GAMES = [
   { id: "vrai-faux", nom: "Vrai ou Faux", emoji: "✅", desc: "Teste tes connaissances", levelRequired: 3 },
   { id: "quiz-rapide", nom: "Quiz Rapide", emoji: "⚡", desc: "Réponds à un quiz éclair", levelRequired: 4 },
   { id: "comparaison-maths", nom: "Comparaison de nombres", emoji: "🔢", desc: "Choisis le plus grand nombre", levelRequired: 2 },
+  { id: "francais-verbe", nom: "Trouve le verbe", emoji: "🧠", desc: "Clique sur le verbe dans la phrase", levelRequired: 2 },
+  { id: "anglais-memory", nom: "Memory anglais", emoji: "🔤", desc: "Associe les mots anglais et français", levelRequired: 2 },
 ];
 
 export const LEVEL_THRESHOLDS = {
