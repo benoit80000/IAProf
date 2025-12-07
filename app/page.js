@@ -21,6 +21,7 @@ import {
   Gamepad2,
   Timer,
   Check,
+  Brain,
   User,
   Palette,
   PenTool,
